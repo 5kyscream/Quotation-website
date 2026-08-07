@@ -33,12 +33,12 @@ const PreviewExport = () => {
     setIsGenerating(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const proposal = {
-      id: Date.now().toString(),
+      id: Date.now().toString(), // Will be ignored by Supabase, used for local fallback
       ...formData
     };
-    saveProposal(proposal);
+    await saveProposal(proposal);
     alert('Proposal saved successfully!');
     navigate('/proposals');
   };

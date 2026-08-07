@@ -1,12 +1,79 @@
-const PROPOSALS_KEY = 'vykon_proposals';
+import { supabase } from './supabaseClient';
 
-export const getProposals = () => {
+const PROPOSALS_KEY = 'vykon_proposals'; // Fallback key
+
+export const getProposals = async () => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching proposals from Supabase:', error.message);
+      // Fallback to local storage if network fails
+      return getLocalProposals();
+    }
+  } else {
+    return getLocalProposals();
+  }
+};
+
+export const saveProposal = async (proposal) => {
+  if (supabase) {
+    try {
+      // Remove local 'id' as Supabase uses a UUID DB-generated id, unless it's an update.
+      // Our form just creates new proposals, so we'll just insert.
+      const { id, ...proposalData } = proposal; 
+      
+      const { data, error } = await supabase
+        .from('proposals')
+        .insert([proposalData])
+        .select();
+        
+      if (error) throw error;
+      return data[0];
+    } catch (error) {
+      console.error('Error saving to Supabase:', error.message);
+      saveLocalProposal(proposal);
+      return proposal;
+    }
+  } else {
+    saveLocalProposal(proposal);
+    return proposal;
+  }
+};
+
+export const deleteProposal = async (id) => {
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('proposals')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting from Supabase:', error.message);
+      deleteLocalProposal(id);
+    }
+  } else {
+    deleteLocalProposal(id);
+  }
+};
+
+// --- Fallback Local Storage Methods ---
+
+const getLocalProposals = () => {
   const data = localStorage.getItem(PROPOSALS_KEY);
   return data ? JSON.parse(data) : [];
 };
 
-export const saveProposal = (proposal) => {
-  const proposals = getProposals();
+const saveLocalProposal = (proposal) => {
+  const proposals = getLocalProposals();
   const existingIndex = proposals.findIndex(p => p.id === proposal.id);
   
   if (existingIndex >= 0) {
@@ -18,8 +85,8 @@ export const saveProposal = (proposal) => {
   localStorage.setItem(PROPOSALS_KEY, JSON.stringify(proposals));
 };
 
-export const deleteProposal = (id) => {
-  const proposals = getProposals();
+const deleteLocalProposal = (id) => {
+  const proposals = getLocalProposals();
   const filtered = proposals.filter(p => p.id !== id);
   localStorage.setItem(PROPOSALS_KEY, JSON.stringify(filtered));
 };

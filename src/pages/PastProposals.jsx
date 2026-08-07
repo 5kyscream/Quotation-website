@@ -1,28 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { getProposals, deleteProposal } from '../utils/storage';
-import { Trash2, Download } from 'lucide-react';
+import { Trash2, Download, Loader } from 'lucide-react';
 
 const PastProposals = () => {
   const [proposals, setProposals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProposals = async () => {
+    setLoading(true);
+    const data = await getProposals();
+    setProposals(data);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setProposals(getProposals());
+    fetchProposals();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this proposal?')) {
-      deleteProposal(id);
-      setProposals(getProposals());
+      await deleteProposal(id);
+      fetchProposals();
     }
   };
 
   return (
     <div>
-      <div style={{ marginBottom: '40px' }}>
+      <div style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 className="subheading" style={{ fontSize: '32px' }}>Past Proposals</h1>
+        {loading && <Loader className="animate-spin" color="var(--color-teal)" />}
       </div>
 
-      {proposals.length === 0 ? (
+      {loading && proposals.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px' }}>
+          <p style={{ color: 'var(--color-muted-blue)' }}>Loading proposals...</p>
+        </div>
+      ) : proposals.length === 0 ? (
         <div style={{ 
           textAlign: 'center', 
           padding: '60px', 
@@ -48,12 +61,12 @@ const PastProposals = () => {
               {proposals.map((prop) => (
                 <tr key={prop.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
                   <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.proposalNumber}</td>
-                  <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.clientName}</td>
+                  <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.companyName || prop.clientName}</td>
                   <td style={{ padding: '16px', color: 'var(--color-teal)', fontWeight: 600 }}>{prop.capacity}</td>
                   <td style={{ padding: '16px', color: 'var(--color-muted-blue)' }}>{prop.date}</td>
                   <td style={{ padding: '16px', display: 'flex', gap: '12px' }}>
                     <button 
-                      onClick={() => alert('View/Download functionality will be available from the creation page.')}
+                      onClick={() => alert('View/Download functionality is only available immediately after creation in this version.')}
                       style={{ background: 'none', border: 'none', color: 'var(--color-orange)', cursor: 'pointer' }}
                       title="Download PDF"
                     >

@@ -196,3 +196,105 @@ body {
   box-sizing: border-box;
   page-break-after: always;
 }
+
+/* Tables */
+.vykon-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  background-color: var(--color-navy);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vykon-table th {
+  background-color: rgba(244, 98, 31, 0.1); /* Subtle Orange bg */
+  color: var(--color-orange);
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 2px solid var(--color-orange);
+}
+
+.vykon-table th.teal-header {
+  background-color: rgba(0, 194, 168, 0.1);
+  color: var(--color-teal);
+  border-bottom: 2px solid var(--color-teal);
+}
+
+.vykon-table td {
+  padding: 16px;
+  color: var(--color-white);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.vykon-table tr:last-child td {
+  border-bottom: none;
+}
+
+.vykon-table tr.total-row td {
+  background-color: rgba(255, 255, 255, 0.03);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Cards */
+.vykon-card {
+  background-color: var(--color-navy);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Timeline */
+.vykon-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 20px 0;
+}
+
+.vykon-timeline::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--color-orange), var(--color-teal));
+  z-index: 1;
+}
+
+.timeline-node {
+  background-color: var(--color-midnight);
+  border: 2px solid var(--color-teal);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+}
+
+.timeline-content {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Checkmarks */
+.vykon-check {
+  color: var(--color-teal);
+  background-color: rgba(0, 194, 168, 0.1);
+  border-radius: 50%;
+  padding: 4px;
+  display: inline-flex;
+}

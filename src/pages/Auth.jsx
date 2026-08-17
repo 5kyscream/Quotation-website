@@ -15,6 +15,12 @@ const Auth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    
+    if (!isLogin && !email.endsWith('@vykonindustechnologies.com')) {
+      setError('Registration is restricted to @vykonindustechnologies.com email addresses only.');
+      return;
+    }
+
     setLoading(true);
 
     try {

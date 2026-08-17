@@ -1,8 +1,17 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Zap, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Layout = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{
@@ -31,7 +40,7 @@ const Layout = () => {
             </div>
           </Link>
           
-          <nav style={{ display: 'flex', gap: '24px' }}>
+          <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
             <Link to="/proposals" style={{
               color: 'var(--color-white)',
               textDecoration: 'none',
@@ -46,6 +55,18 @@ const Layout = () => {
             <Link to="/new" className="btn-primary" style={{ textDecoration: 'none' }}>
               New Proposal
             </Link>
+            {user && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px', paddingLeft: '16px', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                <span style={{ color: 'var(--color-muted-blue)', fontSize: '14px' }}>{user.email}</span>
+                <button 
+                  onClick={handleLogout}
+                  style={{ background: 'none', border: 'none', color: 'var(--color-white)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            )}
           </nav>
         </div>
       </header>

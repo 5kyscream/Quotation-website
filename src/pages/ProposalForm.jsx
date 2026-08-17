@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { getNextProposalNumber } from '../utils/storage';
 
 const ProposalForm = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const ProposalForm = () => {
     consumerNumber: '',
     monthlyConsumption: '',
     siteAddress: '',
-    proposalNumber: `VP-${Math.floor(1000 + Math.random() * 9000)}`,
+    proposalNumber: '',
     date: new Date().toISOString().split('T')[0],
     
     // System Specs
@@ -33,6 +34,14 @@ const ProposalForm = () => {
     tenureYears: '5',
     escalationRate: '3'
   });
+
+  useEffect(() => {
+    const fetchProposalNumber = async () => {
+      const pNum = await getNextProposalNumber();
+      setFormData(prev => ({ ...prev, proposalNumber: pNum }));
+    };
+    fetchProposalNumber();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

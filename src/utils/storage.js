@@ -22,6 +22,22 @@ export const getProposals = async () => {
   }
 };
 
+export const getNextProposalNumber = async () => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.rpc('get_next_proposal_number');
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching global proposal number:', error.message);
+      // Fallback local logic if DB fails
+      return `VP-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+  } else {
+    return `VP-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+};
+
 export const saveProposal = async (proposal) => {
   if (supabase) {
     try {

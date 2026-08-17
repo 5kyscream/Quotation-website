@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Loader } from 'lucide-react';
+import { Zap, Loader, Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -18,6 +20,11 @@ const Auth = () => {
     
     if (!isLogin && !email.endsWith('@vykonindustechnologies.com')) {
       setError('Registration is restricted to @vykonindustechnologies.com email addresses only.');
+      return;
+    }
+
+    if (!isLogin && password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
@@ -111,15 +118,40 @@ const Auth = () => {
           </div>
           <div className="input-group">
             <label>Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              style={{ width: '100%', boxSizing: 'border-box' }}
-            />
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                style={{ width: '100%', boxSizing: 'border-box', paddingRight: '40px' }}
+                className="form-input"
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-muted-blue)', cursor: 'pointer' }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
+          
+          {!isLogin && (
+            <div className="input-group">
+              <label>Confirm Password</label>
+              <input 
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                style={{ width: '100%', boxSizing: 'border-box' }}
+                className="form-input"
+              />
+            </div>
+          )}
           
           <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '8px' }} disabled={loading}>
             {loading ? <Loader className="animate-spin" size={20} /> : (isLogin ? 'Sign In' : 'Sign Up')}

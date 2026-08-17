@@ -59,6 +59,12 @@ body {
   letter-spacing: 1px;
 }
 
+.technical-text {
+  font-family: var(--font-body); /* Inter */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 /* Buttons */
 .btn-primary {
   background-color: var(--color-orange);
@@ -232,6 +238,7 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   font-family: var(--font-body);
   font-size: 14px;
+  font-variant-numeric: tabular-nums;
 }
 
 .vykon-table tr:last-child td {

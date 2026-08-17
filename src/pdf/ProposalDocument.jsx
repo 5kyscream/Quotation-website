@@ -24,14 +24,6 @@ const Footer = () => (
         <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '16px' }}>careers@vykonindustechnologies.com</div>
       </div>
     </div>
-    <div style={{ textAlign: 'right' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '42px', color: 'white', letterSpacing: '-1px' }}>
-        Wire <span style={{ color: 'var(--color-teal)' }}>Precise.</span>
-      </div>
-      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '13px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', marginTop: '4px' }}>
-        SOLAR INFRASTRUCTURE · INDIA
-      </div>
-    </div>
   </div>
 );
 

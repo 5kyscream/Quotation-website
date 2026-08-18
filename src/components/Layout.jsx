@@ -40,9 +40,6 @@ const Layout = () => {
             }}>
               Past Proposals
             </Link>
-            <Link to="/new" className="btn-primary" style={{ textDecoration: 'none' }}>
-              New Proposal
-            </Link>
             {user && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px', paddingLeft: '16px', borderLeft: '1px solid rgba(255, 255, 255, 0.2)' }}>
                 <span style={{ color: 'var(--color-muted-blue)', fontSize: '14px' }}>{user.email}</span>

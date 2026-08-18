@@ -4,7 +4,8 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import PastProposals from './pages/PastProposals';
 import ProposalForm from './pages/ProposalForm';
-import PreviewExport from './pages/PreviewExport';
+import ReviewExport from './pages/ReviewExport';
+import ProposalView from './pages/ProposalView';
 import Auth from './pages/Auth';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -18,8 +19,9 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="proposals" element={<PastProposals />} />
+            <Route path="proposals/:id" element={<ProposalView />} />
             <Route path="new" element={<ProposalForm />} />
-            <Route path="preview" element={<PreviewExport />} />
+            <Route path="review" element={<ReviewExport />} />
           </Route>
         </Routes>
       </Router>

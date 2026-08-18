@@ -22,6 +22,26 @@ export const getProposals = async () => {
   }
 };
 
+export const getProposalById = async (id) => {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('proposals')
+        .select('*')
+        .eq('id', id)
+        .single();
+        
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching proposal by ID from Supabase:', error.message);
+      return getLocalProposals().find(p => p.id === id);
+    }
+  } else {
+    return getLocalProposals().find(p => p.id === id);
+  }
+};
+
 export const getNextProposalNumber = async () => {
   if (supabase) {
     try {

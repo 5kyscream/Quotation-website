@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getProposals, deleteProposal } from '../utils/storage';
-import { Trash2, Download, Loader } from 'lucide-react';
+import { Trash2, Download, Eye, Loader } from 'lucide-react';
+import { generatePptx } from '../utils/PptxRenderer';
 
 const PastProposals = () => {
   const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchProposals = async () => {
     setLoading(true);
@@ -17,11 +20,26 @@ const PastProposals = () => {
     fetchProposals();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this proposal?')) {
       await deleteProposal(id);
       fetchProposals();
     }
+  };
+
+  const handleDownload = async (prop, e) => {
+    e.stopPropagation();
+    try {
+      await generatePptx(prop);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to generate PPTX');
+    }
+  };
+
+  const handleView = (id) => {
+    navigate(`/proposals/${id}`);
   };
 
   return (
@@ -59,21 +77,33 @@ const PastProposals = () => {
             </thead>
             <tbody>
               {proposals.map((prop) => (
-                <tr key={prop.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <tr 
+                  key={prop.id} 
+                  style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', cursor: 'pointer' }}
+                  onClick={() => handleView(prop.id)}
+                  className="table-row-hover"
+                >
                   <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.proposalNumber}</td>
                   <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.companyName || prop.clientName}</td>
                   <td style={{ padding: '16px', color: 'var(--color-teal)', fontWeight: 600 }}>{prop.capacity}</td>
                   <td style={{ padding: '16px', color: 'var(--color-muted-blue)' }}>{prop.date}</td>
                   <td style={{ padding: '16px', display: 'flex', gap: '12px' }}>
                     <button 
-                      onClick={() => alert('View/Download functionality is only available immediately after creation in this version.')}
+                      onClick={(e) => { e.stopPropagation(); handleView(prop.id); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-teal)', cursor: 'pointer' }}
+                      title="View Proposal"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button 
+                      onClick={(e) => handleDownload(prop, e)}
                       style={{ background: 'none', border: 'none', color: 'var(--color-orange)', cursor: 'pointer' }}
-                      title="Download PDF"
+                      title="Download PPTX"
                     >
                       <Download size={18} />
                     </button>
                     <button 
-                      onClick={() => handleDelete(prop.id)}
+                      onClick={(e) => handleDelete(prop.id, e)}
                       style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}
                       title="Delete"
                     >

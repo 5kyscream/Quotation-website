@@ -1,6 +1,7 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 import { calculateFinancials, formatCurrency } from '../utils/calculations';
-import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu } from 'lucide-react';
+import { brandConfig } from '../config/brand';
+import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Logo = () => (
@@ -16,19 +17,24 @@ const Logo = () => (
 );
 
 const Footer = () => (
-  <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
+  <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <div style={{ width: '60px', height: '6px', backgroundColor: 'var(--color-orange)', borderRadius: '3px' }}></div>
+      <div style={{ width: '48px', height: '5px', backgroundColor: 'var(--color-orange)', borderRadius: '3px' }}></div>
       <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'rgba(255,255,255,0.9)', fontSize: '22px', letterSpacing: '1px' }}>VYKON INDUS TECHNOLOGIES</div>
-        <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '16px' }}>careers@vykonindustechnologies.com</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--color-white)', fontSize: '20px', letterSpacing: '1px' }}>{brandConfig.companyName}</div>
+        <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>{brandConfig.companyEmail}</div>
       </div>
+    </div>
+    <div style={{ textAlign: 'right' }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--color-white)', fontSize: '20px' }}>CLOSE <span style={{ color: 'var(--color-teal)' }}>PRECISE.</span></div>
+      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', fontSize: '10px', letterSpacing: '1px', marginTop: '2px' }}>{brandConfig.footerText}</div>
+      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-orange)', fontSize: '10px', letterSpacing: '1px' }}>{brandConfig.footerPartners}</div>
     </div>
   </div>
 );
 
-const Page = ({ children, className = '' }) => (
-  <div className={`pdf-page ${className}`} style={{ padding: '40px', position: 'relative' }}>
+const Page = ({ children, id }) => (
+  <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
     <div className="left-accent-bar"></div>
     {children}
     <Footer />
@@ -36,25 +42,42 @@ const Page = ({ children, className = '' }) => (
 );
 
 const SectionHeader = ({ title, highlight }) => (
-  <div style={{ borderBottom: '2px solid rgba(255,255,255,0.1)', marginBottom: '24px', paddingBottom: '12px' }}>
-    <h2 className="headline-1" style={{ fontSize: '36px' }}>
+  <div style={{ borderBottom: '1px solid var(--color-teal)', marginBottom: '24px', paddingBottom: '12px' }}>
+    <h2 className="headline-1" style={{ fontSize: '32px' }}>
       {title} <span className="headline-2">{highlight}</span>
     </h2>
   </div>
 );
 
-const ProposalDocument = forwardRef(({ formData }, ref) => {
+const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }, ref) => {
+  const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
+
+  // Sync scroll with activeStep
+  useEffect(() => {
+    if (activeStep && containerRef.current && layout === 'column') {
+      // Approximate step to page mapping
+      let pageId = `page-${activeStep}`;
+      if (activeStep > 6 && !formData.isLoan) {
+        pageId = `page-${activeStep - 1}`; // Account for skipped loan page
+      }
+      
+      const el = containerRef.current.querySelector(`#${pageId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [activeStep, formData.isLoan, layout]);
 
   // Chart Data
   const monthlyGenData = Array.from({ length: 12 }, (_, i) => ({
     name: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i],
-    value: Math.round(fin.annualGeneration / 12 * (1 + Math.sin(i) * 0.1)) // simple curve simulation
+    value: Math.round(fin.annualGeneration / 12 * (1 + Math.sin(i) * 0.1))
   }));
 
   const gen25YrData = Array.from({ length: 25 }, (_, i) => ({
     year: `20${25 + i}`,
-    value: Math.round(fin.annualGeneration * Math.pow(0.99, i))
+    value: Math.round(fin.annualGeneration * Math.pow(1 - (parseFloat(formData.degradationRate)/100), i))
   }));
 
   let cumulative = 0;
@@ -62,44 +85,125 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
   let currentGen = fin.annualGeneration;
   const savings25YrData = Array.from({ length: 25 }, (_, i) => {
     cumulative += currentGen * currentTariff;
-    currentTariff *= (1 + (parseFloat(formData.escalationRate || 0) / 100)); // Default escalation if not provided
-    currentGen *= 0.99;
-    return { year: `20${25 + i}`, value: Math.round(cumulative / 100000) }; // in Lakhs
+    currentTariff *= 1.03; // 3% escalation default
+    currentGen *= (1 - (parseFloat(formData.degradationRate)/100));
+    return { year: `20${25 + i}`, value: Math.round(cumulative / 100000) };
   });
 
   return (
-    <div ref={ref} style={{ backgroundColor: '#000', padding: '20px' }}>
+    <div ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0' }}>
       
-      {/* PAGE 1: COVER */}
-      <Page className="bg-grid">
+      {/* PAGE 1: COVER (Step 1) */}
+      <Page id="page-1">
+        <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
         <Logo />
         
-        <div style={{ marginTop: '160px' }}>
+        <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>
             PROPOSAL NO: {formData.proposalNumber}
           </div>
           
-          <h1 className="headline-1" style={{ fontSize: '96px', marginBottom: '8px' }}>
+          <h1 className="headline-1" style={{ fontSize: '80px', marginBottom: '8px' }}>
             {formData.capacity} kWp <br />
-            <span className="headline-2">SOLAR POWER PLANT</span>
+            <span className="headline-2">SOLAR PV SOLUTION</span>
           </h1>
           
           <div style={{ marginTop: '60px', borderLeft: '4px solid var(--color-orange)', paddingLeft: '24px' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px', marginBottom: '8px' }}>PREPARED FOR</p>
-            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white', fontSize: '36px', lineHeight: 1.2 }}>{formData.companyName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '16px', marginTop: '8px' }}>Attn: {formData.contactPerson}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '16px' }}>{formData.siteAddress}</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginBottom: '8px' }}>PREPARED FOR: {formData.customerType}</p>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
+            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>Attn: {formData.contactPerson}</p>
+            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px' }}>{formData.date}</p>
           </div>
         </div>
       </Page>
 
-      {/* PAGE 2: SYSTEM PRICING & PAYMENT TERMS */}
-      <Page>
-        <SectionHeader title="SYSTEM" highlight="PRICING" />
+      {/* PAGE 2: BENEFITS IN NUMBERS & CUSTOMER DETAILS (Step 2) */}
+      <Page id="page-2">
+        <SectionHeader title="Benefits in" highlight="Numbers" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <ZapIcon size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Plant Capacity</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.capacity} kWp</div>
+          </div>
+          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Banknote size={20} color="var(--color-orange)" style={{ marginBottom: '8px' }} />
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Project Cost (Gross)</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.grandTotal)}</div>
+          </div>
+          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Calendar size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>1st Year Est. Savings</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
+          </div>
+          
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Average Annual Savings</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.averageAnnualSavings)}</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Lifetime Savings (25 Yrs)</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>1st Year Generation</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.annualGeneration.toLocaleString()} kWh</div>
+          </div>
+
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>EMI</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.isLoan ? formatCurrency(fin.monthlyEMI) : '—'}</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Annual Returns</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.annualReturns.toFixed(1)}%</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Payback Period</div>
+            <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
+          </div>
+        </div>
+
+        <SectionHeader title="Customer" highlight="Details" />
+        <div style={{ display: 'flex', gap: '24px' }}>
+          <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '100%', minHeight: '160px', backgroundColor: 'var(--color-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+               <MapPin color="var(--color-muted-blue)" size={48} />
+            </div>
+          </div>
+          <div style={{ flex: 2 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Company Name</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.companyName || '—'}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Contact Person</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.contactPerson || '—'}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Phone / Email</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.consumerNumber || '—'} <br/> {formData.email || ''}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Avg Monthly Consumption</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.monthlyConsumption ? `${formData.monthlyConsumption} kWh` : '—'}</div>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Site Address</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.siteAddress} {formData.additionalAddress} {formData.state}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Page>
+
+      {/* PAGE 3: SYSTEM PRICING (Step 4) */}
+      <Page id="page-3">
+        <SectionHeader title="System" highlight="Pricing" />
         
-        <h3 className="subheading" style={{ fontSize: '20px', marginBottom: '12px' }}>Project Cost</h3>
         <table className="vykon-table">
           <thead>
             <tr>
@@ -111,137 +215,151 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
           <tbody>
             <tr>
               <td>Solar Power Generating System</td>
-              <td>Supply & Installation of Solar PV System with one year AMC included *</td>
+              <td>Supply & Installation of Solar PV System</td>
               <td style={{ textAlign: 'right' }}>{formatCurrency(fin.projectCost)}</td>
             </tr>
+            {fin.subsidyAmount > 0 && (
+              <tr>
+                <td>Subsidy</td>
+                <td>Government Subsidy Deduction</td>
+                <td style={{ textAlign: 'right', color: 'var(--color-teal)' }}>- {formatCurrency(formData.subsidyAmount)}</td>
+              </tr>
+            )}
             <tr>
               <td>Taxes</td>
-              <td>GST @ {formData.gstRate || 13.8}%</td>
+              <td>GST @ {formData.gstRate}%</td>
               <td style={{ textAlign: 'right' }}>{formatCurrency(fin.gstAmount)}</td>
             </tr>
             <tr className="total-row">
-              <td colSpan="2" style={{ color: 'var(--color-teal)' }}>Grand Total</td>
-              <td style={{ textAlign: 'right', color: 'var(--color-teal)' }}>{formatCurrency(fin.grandTotal)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginTop: '-16px', marginBottom: '24px' }}>* AMC includes monitoring and quarterly visits</p>
-
-        <h3 className="subheading" style={{ fontSize: '20px', marginBottom: '12px' }}>Optional Annual Maintenance Contract</h3>
-        <table className="vykon-table">
-          <thead>
-            <tr>
-              <th style={{ width: '30%' }}>Services</th>
-              <th style={{ width: '50%' }}>Details</th>
-              <th style={{ width: '20%', textAlign: 'right' }}>Annual Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Annual Maintenance Contract</td>
-              <td>For 5 years</td>
-              <td style={{ textAlign: 'right' }}>₹0</td>
+              <td colSpan="2" style={{ color: 'var(--color-orange)' }}>Grand Total</td>
+              <td style={{ textAlign: 'right', color: 'var(--color-orange)' }}>{formatCurrency(fin.grandTotal)}</td>
             </tr>
           </tbody>
         </table>
 
-        <SectionHeader title="INCENTIVES" highlight="& TAX CREDIT" />
-        <table className="vykon-table">
-          <thead>
-            <tr>
-              <th className="teal-header" style={{ width: '70%' }}>Incentive Type</th>
-              <th className="teal-header" style={{ width: '30%', textAlign: 'right' }}>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>GST Input Credit</td>
-              <td style={{ textAlign: 'right' }}>{formatCurrency(fin.gstInputCredit)}</td>
-            </tr>
-            <tr>
-              <td>Accelerated Depreciation Benefit (1st Year)</td>
-              <td style={{ textAlign: 'right' }}>{formatCurrency(fin.acceleratedDepreciation)}</td>
-            </tr>
-            <tr className="total-row">
-              <td style={{ color: 'var(--color-orange)' }}>Total Benefits</td>
-              <td style={{ textAlign: 'right', color: 'var(--color-orange)' }}>{formatCurrency(fin.totalIncentives)}</td>
-            </tr>
-          </tbody>
-        </table>
+        {formData.amcEnabled && (
+          <>
+            <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Optional Annual Maintenance Contract</h3>
+            <table className="vykon-table">
+              <thead>
+                <tr>
+                  <th className="teal-header" style={{ width: '30%' }}>Services</th>
+                  <th className="teal-header" style={{ width: '50%' }}>Details</th>
+                  <th className="teal-header" style={{ width: '20%', textAlign: 'right' }}>Annual Cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Annual Maintenance Contract</td>
+                  <td>{formData.amcDetails}</td>
+                  <td style={{ textAlign: 'right' }}>{formatCurrency(formData.amcCostAnnual)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
 
-        <SectionHeader title="PAYMENT" highlight="TERMS" />
-        <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '32px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginTop: '24px' }}>
+        {formData.taxBenefitAvailable && (
+          <>
+            <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Incentives & Tax Credit</h3>
+            <table className="vykon-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '70%' }}>Incentive Type</th>
+                  <th style={{ width: '30%', textAlign: 'right' }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>GST Input Credit</td>
+                  <td style={{ textAlign: 'right' }}>{formatCurrency(fin.gstInputCredit)}</td>
+                </tr>
+                <tr>
+                  <td>Accelerated Depreciation Benefit (Estimated Lifetime)</td>
+                  <td style={{ textAlign: 'right' }}>{formatCurrency(fin.acceleratedDepreciation)}</td>
+                </tr>
+                <tr className="total-row">
+                  <td style={{ color: 'var(--color-teal)' }}>Total Estimated Benefits</td>
+                  <td style={{ textAlign: 'right', color: 'var(--color-teal)' }}>{formatCurrency(fin.totalIncentives)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
+
+        <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Payment Terms</h3>
+        <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '36px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>20%</div>
-              <div style={{ fontSize: '14px', color: 'white', marginTop: '8px' }}>Advance with work order</div>
+              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentAdvance}%</div>
+              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>Advance with work order</div>
             </div>
-            <ArrowRight size={32} color="var(--color-muted-blue)" />
+            <ArrowRight size={24} color="var(--color-muted-blue)" />
             <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '36px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>20%</div>
-              <div style={{ fontSize: '14px', color: 'white', marginTop: '8px' }}>After structure design approval and CEIG</div>
+              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentStructure}%</div>
+              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>After structure & CEIG</div>
             </div>
-            <ArrowRight size={32} color="var(--color-muted-blue)" />
+            <ArrowRight size={24} color="var(--color-muted-blue)" />
             <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '36px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>60%</div>
-              <div style={{ fontSize: '14px', color: 'white', marginTop: '8px' }}>After receipt of material</div>
+              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentReceipt}%</div>
+              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>After receipt of material</div>
             </div>
           </div>
         </div>
       </Page>
 
-      {/* PAGE 3: PROJECT OUTCOMES */}
-      <Page>
-        <SectionHeader title="PROJECT" highlight="OUTCOMES" />
+      {/* PAGE 4: PROJECT OUTCOMES (Step 5) */}
+      <Page id="page-4">
+        <SectionHeader title="Project" highlight="Outcomes" />
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '32px' }}>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '20px' }}>
-            <ZapIcon size={24} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginBottom: '8px', textTransform: 'uppercase' }}>1st Year Savings</div>
-            <div style={{ fontSize: '28px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
+            <ZapIcon size={20} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>1st Year Savings</div>
           </div>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '20px' }}>
-            <Banknote size={24} color="var(--color-orange)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginBottom: '8px', textTransform: 'uppercase' }}>Lifetime Savings (25 Yrs)</div>
-            <div style={{ fontSize: '28px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
+            <Banknote size={20} color="var(--color-orange)" style={{ margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Lifetime Savings (25 Yrs)</div>
           </div>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '20px' }}>
-            <Calendar size={24} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginBottom: '8px', textTransform: 'uppercase' }}>Payback Period</div>
-            <div style={{ fontSize: '28px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
+            <Calendar size={20} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Payback Period</div>
           </div>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>1st Year Monthly Generation (kWh)</h3>
-        <div style={{ height: '180px', marginBottom: '32px' }}>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>1st Year Monthly Generation (kWh)</h3>
+        <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyGenData}>
-              <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={12} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} />
-              <YAxis stroke="var(--color-muted-blue)" fontSize={12} tickLine={false} axisLine={false} />
+              <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} />
+              <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>25 Year Annual Generation (kWh)</h3>
-        <div style={{ height: '180px', marginBottom: '32px' }}>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Annual Generation (kWh)</h3>
+        <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={gen25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} interval={2} />
-              <YAxis stroke="var(--color-muted-blue)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} />
+              <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} />
               <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-orange)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-orange)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>25 Year Cumulative Savings (Lakhs INR)</h3>
-        <div style={{ height: '180px' }}>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Cumulative Savings (Lakhs INR)</h3>
+        <div style={{ height: '140px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={savings25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} interval={2} />
-              <YAxis stroke="var(--color-muted-blue)" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip formatter={(value) => `₹${value}L`} cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
@@ -249,10 +367,10 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
         </div>
       </Page>
 
-      {/* PAGE 4: LOAN OPTION (Conditional) */}
+      {/* PAGE 5: LOAN OPTION (Step 6 - Conditional) */}
       {formData.isLoan && (
-        <Page>
-          <SectionHeader title="LOAN" highlight="OPTION" />
+        <Page id="page-5">
+          <SectionHeader title="Loan" highlight="Option" />
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
             <div style={{ flex: '0 0 120px', display: 'flex', justifyContent: 'center' }}>
@@ -260,7 +378,7 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
             </div>
             <div>
               <div style={{ fontSize: '16px', color: 'var(--color-muted-blue)', marginBottom: '4px' }}>Bridging the Financing Gap with</div>
-              <div style={{ fontSize: '32px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 700, marginBottom: '16px' }}>Vykon's Solar Loans</div>
+              <div style={{ fontSize: '32px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 700, marginBottom: '16px' }}>{formData.loanSource}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div className="vykon-check"><Check size={14} strokeWidth={3} /></div><span style={{ fontSize: '16px' }}>Collateral Free Loans</span></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}><div className="vykon-check"><Check size={14} strokeWidth={3} /></div><span style={{ fontSize: '16px' }}>Minimum Documentation</span></div>
@@ -269,52 +387,48 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
             </div>
           </div>
           
-          <p style={{ color: 'var(--color-earth)', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>
-            We offer flexible loan options to help you install solar PV systems. This allows you to start saving on your monthly electricity bills right away while keeping your initial investment low.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '16px' }}>
-            <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Banknote size={24} color="var(--color-teal)" style={{ margin: '0 auto 12px' }} />
-              <div style={{ fontSize: '28px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.loanAmount)}</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Eligible Loan Amount</div>
+              <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.loanAmount)}</div>
+              <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Eligible Loan Amount</div>
             </div>
-            <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+            <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Calendar size={24} color="var(--color-orange)" style={{ margin: '0 auto 12px' }} />
-              <div style={{ fontSize: '28px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.tenureYears} Years</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Tenure</div>
+              <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.tenureYears} Years</div>
+              <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Tenure</div>
             </div>
-            <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 20px' }}>
+            <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Settings size={24} color="var(--color-teal)" style={{ margin: '0 auto 12px' }} />
-              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.monthlyEMI)}</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Monthly Installment</div>
+              <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.monthlyEMI)}</div>
+              <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Monthly Installment</div>
             </div>
           </div>
           
-          <p style={{ fontSize: '11px', color: 'var(--color-muted-blue)', marginBottom: '40px', fontStyle: 'italic' }}>
+          <p style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '32px', fontStyle: 'italic' }}>
             *The loan details are based on a financial structure with a {formData.downPayment}% upfront down payment, an annual interest rate of {formData.interestRate}%, and a repayment period of {formData.tenureYears} years.
           </p>
 
-          <SectionHeader title="LOAN OPTION" highlight="SUMMARY" />
+          <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Loan Option Summary</h3>
           <table className="vykon-table">
             <thead>
               <tr>
                 <th style={{ width: '70%' }}>Name</th>
-                <th style={{ width: '30%', textAlign: 'right' }}>Loan</th>
+                <th style={{ width: '30%', textAlign: 'right' }}>Details</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>Upfront Investment</td>
-                <td style={{ textAlign: 'right' }}>{formatCurrency(fin.grandTotal * (formData.downPayment/100))}</td>
+                <td style={{ textAlign: 'right' }}>{formatCurrency(fin.upfrontInvestment)}</td>
               </tr>
               <tr>
                 <td>GST Return Benefits</td>
-                <td style={{ textAlign: 'right' }}>Yes</td>
+                <td style={{ textAlign: 'right' }}>{formData.taxBenefitAvailable ? 'Yes' : 'No'}</td>
               </tr>
               <tr>
                 <td>Accelerated Depreciation Benefits</td>
-                <td style={{ textAlign: 'right' }}>Yes</td>
+                <td style={{ textAlign: 'right' }}>{formData.taxBenefitAvailable ? 'Yes' : 'No'}</td>
               </tr>
               <tr>
                 <td>Payback Period</td>
@@ -333,10 +447,9 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
         </Page>
       )}
 
-      {/* PAGE 5: SCOPE OF WORK & PROJECT SCHEDULE */}
-      <Page>
-        <SectionHeader title="SCOPE OF" highlight="WORK" />
-        
+      {/* PAGE 6: SCOPE OF WORK & TIMELINE (Step 7) */}
+      <Page id={formData.isLoan ? "page-6" : "page-5"}>
+        <SectionHeader title="Scope of" highlight="Work" />
         <table className="vykon-table">
           <thead>
             <tr>
@@ -346,112 +459,42 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Safe Access to Roof</td>
-              <td style={{ textAlign: 'center' }}></td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-            </tr>
-            <tr>
-              <td>Transit Insurance</td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-              <td style={{ textAlign: 'center' }}></td>
-            </tr>
-            <tr>
-              <td>Auxiliary Power for Installation</td>
-              <td style={{ textAlign: 'center' }}></td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-            </tr>
-            <tr>
-              <td>Plumbing Working</td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-              <td style={{ textAlign: 'center' }}></td>
-            </tr>
-            <tr>
-              <td>Safety Approvals</td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-              <td style={{ textAlign: 'center' }}></td>
-            </tr>
-            <tr>
-              <td>Infrastructure (Scaffolding)</td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-              <td style={{ textAlign: 'center' }}></td>
-            </tr>
-            <tr>
-              <td>Material Storage Space</td>
-              <td style={{ textAlign: 'center' }}></td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-            </tr>
-            <tr>
-              <td>Material Security</td>
-              <td style={{ textAlign: 'center' }}></td>
-              <td style={{ textAlign: 'center' }}><div className="vykon-check"><Check size={16} strokeWidth={3} /></div></td>
-            </tr>
+            {formData.scopeItems.map((item, idx) => (
+              <tr key={idx}>
+                <td>{item.name}</td>
+                <td style={{ textAlign: 'center' }}>{item.epc && <div className="vykon-check"><Check size={14} strokeWidth={3} /></div>}</td>
+                <td style={{ textAlign: 'center' }}>{item.cust && <div className="vykon-check"><Check size={14} strokeWidth={3} /></div>}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
-        <div style={{ height: '40px' }}></div>
-        <SectionHeader title="PROJECT" highlight="SCHEDULE" />
-        
-        <div style={{ backgroundColor: 'var(--color-navy)', padding: '60px 40px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ height: '32px' }}></div>
+        <SectionHeader title="Project" highlight="Schedule" />
+        <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="vykon-timeline">
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-teal)' }}><PenTool size={20} color="var(--color-teal)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-teal)', fontWeight: 'bold' }}>1. Site Survey</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 1-7</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-orange)' }}><ClipboardList size={20} color="var(--color-orange)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>2. Engineering</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 8-14</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-teal)' }}><Clock size={20} color="var(--color-teal)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-teal)', fontWeight: 'bold' }}>3. Procurement</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 15-28</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-orange)' }}><Settings size={20} color="var(--color-orange)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>4. Installation</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 29-42</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-teal)' }}><Shield size={20} color="var(--color-teal)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-teal)', fontWeight: 'bold' }}>5. Testing</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 43-49</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '16.6%', zIndex: 2 }}>
-              <div className="timeline-node" style={{ borderColor: 'var(--color-orange)' }}><ZapIcon size={20} color="var(--color-orange)" /></div>
-              <div className="timeline-content">
-                <div style={{ fontSize: '12px', color: 'var(--color-orange)', fontWeight: 'bold' }}>6. Commissioning</div>
-                <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Day 50-56</div>
-              </div>
-            </div>
-
+            {formData.projectSchedule.map((phase, idx) => {
+              const colors = ['var(--color-teal)', 'var(--color-orange)'];
+              const color = colors[idx % 2];
+              return (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: `${100 / formData.projectSchedule.length}%`, zIndex: 2 }}>
+                  <div className="timeline-node" style={{ borderColor: color }}>
+                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: color }}></div>
+                  </div>
+                  <div className="timeline-content">
+                    <div style={{ fontSize: '11px', color: color, fontWeight: 'bold' }}>{idx + 1}. {phase.name}</div>
+                    <div style={{ fontSize: '9px', color: 'var(--color-muted-blue)', marginTop: '2px' }}>{phase.days}</div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
-          <p style={{ textAlign: 'right', fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '40px' }}>Note: Final implementation timelines to proceed post technical site survey</p>
         </div>
       </Page>
 
-      {/* PAGE 6: BILL OF MATERIALS & WARRANTY */}
-      <Page>
-        <SectionHeader title="BILL OF" highlight="MATERIALS" />
-        
+      {/* PAGE 7: BoM & Warranty (Step 8) */}
+      <Page id={formData.isLoan ? "page-7" : "page-6"}>
+        <SectionHeader title="Bill of" highlight="Materials" />
         <table className="vykon-table">
           <thead>
             <tr>
@@ -461,60 +504,120 @@ const ProposalDocument = forwardRef(({ formData }, ref) => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Solar Panels/Modules</td>
-              <td>{formData.panelMake}</td>
-              <td style={{ textAlign: 'center' }}>As per design</td>
-            </tr>
-            <tr>
-              <td>Inverter</td>
-              <td>{formData.inverterMake}</td>
-              <td style={{ textAlign: 'center' }}>As per design</td>
-            </tr>
-            <tr>
-              <td>DC Cable</td>
-              <td>{formData.dcCableMake}</td>
-              <td style={{ textAlign: 'center' }}>Lot</td>
-            </tr>
-            <tr>
-              <td>AC Cable</td>
-              <td>{formData.acCableMake}</td>
-              <td style={{ textAlign: 'center' }}>Lot</td>
-            </tr>
-            <tr>
-              <td>Switchgear</td>
-              <td>{formData.switchgearMake}</td>
-              <td style={{ textAlign: 'center' }}>Lot</td>
-            </tr>
+            {formData.bomItems.map((item, idx) => (
+              <tr key={idx}>
+                <td>{item.component}</td>
+                <td>{item.make}</td>
+                <td style={{ textAlign: 'center' }}>{item.qty}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
-        <div style={{ height: '40px' }}></div>
-        <SectionHeader title="WARRANTY" highlight="TERMS" />
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Sun size={32} color="var(--color-orange)" style={{ marginBottom: '16px' }} />
-            <div style={{ fontSize: '36px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>25 Years</div>
-            <div style={{ fontSize: '14px', color: 'var(--color-muted-blue)', marginTop: '4px' }}>PV Modules</div>
+        <div style={{ height: '32px' }}></div>
+        <SectionHeader title="Warranty" highlight="Terms" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <Sun size={28} color="var(--color-orange)" style={{ margin: '0 auto 12px' }} />
+            <div style={{ fontSize: '32px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.warrantyPanels} Years</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>PV Modules</div>
           </div>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Cpu size={32} color="var(--color-teal)" style={{ marginBottom: '16px' }} />
-            <div style={{ fontSize: '36px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>5 Years</div>
-            <div style={{ fontSize: '14px', color: 'var(--color-muted-blue)', marginTop: '4px' }}>Inverter</div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <Cpu size={28} color="var(--color-teal)" style={{ margin: '0 auto 12px' }} />
+            <div style={{ fontSize: '32px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.warrantyInverter} Years</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>Inverter</div>
           </div>
-          <div className="vykon-card" style={{ textAlign: 'center', padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Shield size={32} color="var(--color-earth)" style={{ marginBottom: '16px' }} />
-            <div style={{ fontSize: '36px', color: 'var(--color-earth)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>1 Year*</div>
-            <div style={{ fontSize: '14px', color: 'var(--color-muted-blue)', marginTop: '4px' }}>Other Components</div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <Shield size={28} color="var(--color-earth)" style={{ margin: '0 auto 12px' }} />
+            <div style={{ fontSize: '32px', color: 'var(--color-earth)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.warrantyOther} Year{formData.warrantyOther > 1 ? 's' : ''}*</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>Other Components</div>
           </div>
         </div>
-        
-        <p style={{ fontSize: '11px', color: 'var(--color-muted-blue)', lineHeight: 1.6 }}>
-          *OEM products have manufacturer warranties. System warranty provided by Vykon Indus Technologies. Other component items have 1-year warranty. See warranty documents & T&Cs for details.
+        <p style={{ fontSize: '10px', color: 'var(--color-muted-blue)', lineHeight: 1.5 }}>
+          *{brandConfig.warrantyFootnote}
         </p>
       </Page>
-      
+
+      {/* PAGE 8: Terms & Conditions (Step 9) */}
+      <Page id={formData.isLoan ? "page-8" : "page-7"}>
+        <SectionHeader title="Terms &" highlight="Conditions" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {formData.termsConditions.map((term, idx) => (
+            <div key={idx} style={{ display: 'flex', gap: '24px' }}>
+              <div style={{ width: '120px', flexShrink: 0, color: 'var(--color-teal)', fontSize: '12px', fontWeight: 600 }}>{term.title}</div>
+              <div style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.5 }}>{term.text}</div>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: '24px', marginTop: '16px' }}>
+            <div style={{ width: '120px', flexShrink: 0, color: 'var(--color-orange)', fontSize: '12px', fontWeight: 600 }}>Exclusions</div>
+            <div style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{formData.exclusions}</div>
+          </div>
+        </div>
+      </Page>
+
+      {/* PAGE 9: About Vykon (Stats) (Auto-injected) */}
+      <Page id={formData.isLoan ? "page-9" : "page-8"}>
+        <SectionHeader title="About" highlight={brandConfig.companyName} />
+        <p style={{ color: 'var(--color-white)', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>
+          We are dedicated to providing state-of-the-art solar infrastructure solutions across India. 
+          Our commitment to quality, precise engineering, and customer satisfaction has made us a trusted partner in the renewable energy sector.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+           <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <div style={{ fontSize: '40px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{brandConfig.stats.capacity}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Installed Solar Capacity</div>
+          </div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <div style={{ fontSize: '40px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{brandConfig.stats.clients}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Clients & Lab Partners</div>
+          </div>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <div style={{ fontSize: '40px', color: 'var(--color-earth)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{brandConfig.stats.sites}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Commissioned Sites</div>
+          </div>
+        </div>
+      </Page>
+
+      {/* PAGE 10: Environmental & Contact (Step 10) */}
+      <Page id={formData.isLoan ? "page-10" : "page-9"}>
+        <SectionHeader title="Environmental" highlight="Impact" />
+        <p style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.6, marginBottom: '24px' }}>
+          Our goal is to provide clean, renewable, green energy to discern customers such as yourself. By choosing solar energy, you're not just investing in clean, renewable power — you're joining us in creating a more sustainable future for generations to come. Let's work together to make a positive impact on our planet.
+        </p>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '40px' }}>
+           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.co2Offset.toLocaleString(undefined, {maximumFractionDigits:0})} Tonnes</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>CO2 Offset</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.treesEquivalent.toLocaleString(undefined, {maximumFractionDigits:0})} Nos.</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Trees Planted</div>
+          </div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.distanceDriven.toLocaleString(undefined, {maximumFractionDigits:0})} Lakh Kms</div>
+            <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Distance Driven</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ width: '40%', backgroundColor: 'var(--color-orange)', padding: '24px', color: 'white' }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>Contact Information</h3>
+            <p style={{ fontSize: '10px', marginBottom: '24px' }}>We'd love to hear from you!</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={14} /> {formData.contactPhone}</div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><MapPin size={14} style={{ marginTop: '2px' }} /> {formData.contactAddress}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={14} /> {formData.contactEmail}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {formData.contactWebsite}</div>
+            </div>
+          </div>
+          <div style={{ width: '60%', padding: '24px', display: 'flex', alignItems: 'center' }}>
+            <p style={{ fontSize: '9px', color: 'var(--color-muted-blue)', lineHeight: 1.5 }}>
+              DISCLAIMER: {brandConfig.disclaimer}
+            </p>
+          </div>
+        </div>
+      </Page>
     </div>
   );
 });

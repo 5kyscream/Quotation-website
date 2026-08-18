@@ -1,25 +1,30 @@
 export const calculateFinancials = (inputs) => {
   const capacity = parseFloat(inputs.capacity) || 0;
   const tariffRate = parseFloat(inputs.tariffRate) || 0;
-  const baseCost = parseFloat(inputs.baseCost) || 0;
+  const costPerWp = parseFloat(inputs.costPerWp) || 0;
   const gstRate = parseFloat(inputs.gstRate) || 8.9;
   
-  const downPaymentPercent = parseFloat(inputs.downPayment) || 40;
+  const year1GenerationPerKwp = parseFloat(inputs.year1GenerationPerKwp) || 1460;
+  const degradationRate = parseFloat(inputs.degradationRate) || 0.7;
+  const subsidyAmount = parseFloat(inputs.subsidyAmount) || 0;
+
+  const downPaymentPercent = parseFloat(inputs.downPayment) || 0;
   const interestRate = parseFloat(inputs.interestRate) || 10;
   const tenureYears = parseFloat(inputs.tenureYears) || 5;
   const escalationRate = parseFloat(inputs.escalationRate) || 3;
 
-  // Project Cost (base) = Base Cost per kWp × Plant Capacity (kWp)
-  const projectCost = baseCost * capacity;
+  // Project Cost (base) = Cost per Wp × Plant Capacity (Wp)
+  const projectCost = costPerWp * (capacity * 1000);
   
   // GST Amount = Project Cost × GST Rate
   const gstAmount = projectCost * (gstRate / 100);
   
   // Grand Total = Project Cost + GST Amount
-  const grandTotal = projectCost + gstAmount;
+  let grandTotal = projectCost + gstAmount - subsidyAmount;
+  if (grandTotal < 0) grandTotal = 0;
 
-  // Annual Generation (kWh) = Plant Capacity × 1825
-  const annualGeneration = capacity * 1825;
+  // Annual Generation (kWh)
+  const annualGeneration = capacity * year1GenerationPerKwp;
 
   // 1st Year Savings (₹) = Annual Generation × Tariff Rate
   const firstYearSavings = annualGeneration * tariffRate;
@@ -31,11 +36,11 @@ export const calculateFinancials = (inputs) => {
   
   for (let year = 1; year <= 25; year++) {
     lifetimeSavings += currentGeneration * currentTariff;
-    // 3% tariff escalation per year
+    // Tariff escalation per year
     currentTariff *= (1 + (escalationRate / 100));
-    // 1% degradation from Year 2
-    if (year >= 1) {
-      currentGeneration *= 0.99;
+    // Degradation from Year 2
+    if (year > 1) {
+      currentGeneration *= (1 - (degradationRate / 100));
     }
   }
   
@@ -49,13 +54,22 @@ export const calculateFinancials = (inputs) => {
   // Annual Returns % = (1st Year Savings / Grand Total) × 100
   const annualReturns = grandTotal > 0 ? (firstYearSavings / grandTotal) * 100 : 0;
 
-  // GST Input Credit = GST Amount
-  const gstInputCredit = gstAmount;
+  // --- Incentives ---
+  let gstInputCredit = 0;
+  let acceleratedDepreciation = 0;
+
+  if (inputs.taxBenefitAvailable) {
+    gstInputCredit = gstAmount;
+    
+    // Tax Rate & Depreciation Rate
+    const taxRate = parseFloat(inputs.taxRate) || 25;
+    const depRate = parseFloat(inputs.depreciationRate) || 40;
+    
+    // Total Tax Savings over lifetime from Accelerated Depreciation
+    // simplified: Project Cost * (Tax Rate / 100)
+    acceleratedDepreciation = projectCost * (taxRate / 100); 
+  }
   
-  // Accelerated Depreciation = Project Cost × 0.4 × 0.3
-  const acceleratedDepreciation = projectCost * 0.4 * 0.3;
-  
-  // Total Incentives = GST Input Credit + Accelerated Depreciation
   const totalIncentives = gstInputCredit + acceleratedDepreciation;
 
   // --- Loan Calculations ---
@@ -65,7 +79,7 @@ export const calculateFinancials = (inputs) => {
 
   if (inputs.isLoan) {
     loanAmount = grandTotal * (1 - (downPaymentPercent / 100));
-    upfrontInvestment = (grandTotal * (downPaymentPercent / 100)) - totalIncentives;
+    upfrontInvestment = grandTotal * (downPaymentPercent / 100);
     
     // EMI = P × r × (1+r)^n / ((1+r)^n − 1)
     const p = loanAmount;
@@ -74,7 +88,11 @@ export const calculateFinancials = (inputs) => {
     
     if (r > 0 && n > 0) {
       monthlyEMI = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    } else if (r === 0 && n > 0) {
+      monthlyEMI = p / n; // 0% interest case
     }
+  } else {
+    upfrontInvestment = grandTotal;
   }
 
   // --- Environmental ---

@@ -28,48 +28,59 @@ const Layout = () => {
         padding: '16px 0'
       }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src={isLightMode ? "/logo-dark.png" : "/logo.png"} alt="Vykon Logo" style={{ height: '40px' }} />
-            <div>
+          
+          {/* LEFT: Logo */}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+            <Link to="/">
+              <img src={isLightMode ? "/logo-dark.png" : "/logo.png"} alt="Vykon Logo" style={{ height: '40px' }} />
+            </Link>
+          </div>
+
+          {/* CENTER: Title */}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <Link to="/" style={{ textDecoration: 'none', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '20px', color: 'var(--color-white)', lineHeight: 1 }}>VYKON</div>
               <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '10px', color: 'var(--color-orange)', letterSpacing: '2px', marginTop: '2px' }}>PROPOSAL STUDIO</div>
-            </div>
-          </Link>
-          
-          <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            <Link to="/proposals" style={{
-              color: 'var(--color-white)',
-              textDecoration: 'none',
-              fontFamily: 'var(--font-body)',
-              fontWeight: 600,
-              fontSize: '14px',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Past Proposals
             </Link>
-            {user && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px', paddingLeft: '16px', borderLeft: '1px solid var(--color-border-light)' }}>
-                <span style={{ color: 'var(--color-muted-blue)', fontSize: '14px' }}>{user.email}</span>
-                
-                <button 
-                  onClick={toggleTheme}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-white)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
-                >
-                  {isLightMode ? <Moon size={18} /> : <Sun size={18} />}
-                </button>
+          </div>
+          
+          {/* RIGHT: Navigation */}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+            <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+              <Link to="/proposals" style={{
+                color: 'var(--color-white)',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 600,
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                Past Proposals
+              </Link>
+              {user && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px', paddingLeft: '16px', borderLeft: '1px solid var(--color-border-light)' }}>
+                  <span style={{ color: 'var(--color-muted-blue)', fontSize: '14px' }}>{user.email}</span>
+                  
+                  <button 
+                    onClick={toggleTheme}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-white)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
+                  >
+                    {isLightMode ? <Moon size={18} /> : <Sun size={18} />}
+                  </button>
 
-                <button 
-                  onClick={handleLogout}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-white)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  title="Logout"
-                >
-                  <LogOut size={18} />
-                </button>
-              </div>
-            )}
-          </nav>
+                  <button 
+                    onClick={handleLogout}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-white)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    title="Logout"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                </div>
+              )}
+            </nav>
+          </div>
         </div>
       </header>
       

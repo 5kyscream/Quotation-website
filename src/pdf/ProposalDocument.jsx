@@ -114,44 +114,44 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
       <Page id="page-2">
         <SectionHeader title="Benefits in" highlight="Numbers" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
             <ZapIcon size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Plant Capacity</div>
             <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.capacity} kWp</div>
           </div>
-          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
             <Banknote size={20} color="var(--color-orange)" style={{ marginBottom: '8px' }} />
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Project Cost (Gross)</div>
             <div style={{ fontSize: '24px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.grandTotal)}</div>
           </div>
-          <div className="vykon-card" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
             <Calendar size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>1st Year Est. Savings</div>
             <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
           </div>
           
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Average Annual Savings</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.averageAnnualSavings)}</div>
           </div>
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Lifetime Savings (25 Yrs)</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
           </div>
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>1st Year Generation</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.annualGeneration.toLocaleString()} kWh</div>
           </div>
 
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>EMI</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.isLoan ? formatCurrency(fin.monthlyEMI) : '—'}</div>
           </div>
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Annual Returns</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.annualReturns.toFixed(1)}%</div>
           </div>
-          <div className="vykon-card" style={{ backgroundColor: 'rgba(255,255,255,0.02)' }}>
+          <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Payback Period</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
           </div>
@@ -159,7 +159,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
 
         <SectionHeader title="Customer" highlight="Details" />
         <div style={{ display: 'flex', gap: '24px' }}>
-          <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden', position: 'relative', minHeight: '160px' }}>
+          <div style={{ flex: 1, backgroundColor: 'var(--color-bg-hover)', borderRadius: '8px', overflow: 'hidden', position: 'relative', minHeight: '160px' }}>
             <iframe
               width="100%"
               height="100%"
@@ -285,7 +285,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
         )}
 
         <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Payment Terms</h3>
-        <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ backgroundColor: 'var(--color-bg-subtle)', padding: '24px', borderRadius: '8px', border: '1px solid var(--color-bg-hover)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'center', width: '30%' }}>
               <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentAdvance}%</div>
@@ -331,9 +331,9 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
         <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyGenData}>
-              <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} />
+              <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} />
               <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
+              <Tooltip cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -343,9 +343,9 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
         <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={gen25YrData} margin={{ left: -10 }}>
-              <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} interval={2} />
+              <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
               <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} />
-              <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-orange)', color: 'white'}} />
+              <Tooltip cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-orange)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-orange)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -355,9 +355,9 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
         <div style={{ height: '140px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={savings25YrData} margin={{ left: -10 }}>
-              <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} interval={2} />
+              <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
               <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip formatter={(value) => `₹${value}L`} cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
+              <Tooltip formatter={(value) => `₹${value}L`} cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -468,7 +468,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
 
         <div style={{ height: '32px' }}></div>
         <SectionHeader title="Project" highlight="Schedule" />
-        <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid var(--color-border-light)' }}>
           <div className="vykon-timeline">
             {formData.projectSchedule.map((phase, idx) => {
               const colors = ['var(--color-teal)', 'var(--color-orange)'];

@@ -49,6 +49,7 @@ const ProposalForm = () => {
   const editData = location.state?.editData;
   const [step, setStep] = useState(1);
   const [editProposalNo, setEditProposalNo] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light-mode'));
   
   const [formData, setFormData] = useState(editData || {
     // Step 1: Cover
@@ -159,7 +160,26 @@ const ProposalForm = () => {
     <div className="wizard-layout">
       {/* LEFT COLUMN: FORM */}
       <div className="wizard-left">
-        <h1 className="subheading" style={{ fontSize: '24px', marginBottom: '8px' }}>Create Proposal</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <h1 className="subheading" style={{ fontSize: '24px', margin: 0 }}>Create Proposal</h1>
+          <button 
+            type="button"
+            onClick={() => {
+              const newMode = !isLightMode;
+              setIsLightMode(newMode);
+              if (newMode) document.body.classList.add('light-mode');
+              else document.body.classList.remove('light-mode');
+            }} 
+            style={{ 
+              background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border-medium)', 
+              color: 'var(--color-white)', padding: '6px 12px', borderRadius: '4px', 
+              cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px',
+              fontWeight: 600
+            }}
+          >
+            {isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </button>
+        </div>
         {renderStepIndicator()}
         
         <div className="vykon-card" style={{ padding: '32px' }}>
@@ -445,7 +465,7 @@ const ProposalForm = () => {
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--color-border-light)' }}>
             <button type="button" onClick={prevStep} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: step === 1 ? 0.3 : 1, pointerEvents: step === 1 ? 'none' : 'auto' }}>
               <ChevronLeft size={20} /> Back
             </button>
@@ -458,7 +478,7 @@ const ProposalForm = () => {
 
       {/* RIGHT COLUMN: LIVE PREVIEW */}
       <div className="wizard-right">
-        <div className="live-preview-wrapper" style={{ transform: 'scale(0.7)' }}>
+        <div className="live-preview-wrapper" style={{ zoom: 0.7 }}>
           <ProposalDocument formData={formData} activeStep={step} />
         </div>
       </div>

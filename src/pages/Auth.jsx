@@ -114,6 +114,7 @@ const Auth = () => {
               required
               placeholder="you@company.com"
               style={{ width: '100%', boxSizing: 'border-box' }}
+              className="form-input"
             />
           </div>
           <div className="input-group">

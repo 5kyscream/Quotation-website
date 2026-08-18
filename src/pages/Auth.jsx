@@ -69,19 +69,7 @@ const Auth = () => {
       }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            backgroundColor: 'var(--color-orange)',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--color-white)',
-            marginBottom: '16px'
-          }}>
-            <Zap size={28} />
-          </div>
+          <img src="/logo.png" alt="Vykon Logo" style={{ height: '64px', marginBottom: '16px' }} />
           <h1 className="subheading" style={{ fontSize: '24px', margin: 0, textAlign: 'center' }}>
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>

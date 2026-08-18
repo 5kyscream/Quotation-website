@@ -20,20 +20,8 @@ const Layout = () => {
         padding: '16px 0'
       }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Placeholder for Logo */}
-            <div style={{
-              width: '40px',
-              height: '40px',
-              backgroundColor: 'var(--color-orange)',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--color-white)'
-            }}>
-              <Zap size={24} />
-            </div>
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="Vykon Logo" style={{ height: '40px' }} />
             <div>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '20px', color: 'var(--color-white)', lineHeight: 1 }}>VYKON</div>
               <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '10px', color: 'var(--color-orange)', letterSpacing: '2px', marginTop: '2px' }}>PROPOSAL STUDIO</div>

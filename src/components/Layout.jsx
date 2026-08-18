@@ -47,19 +47,8 @@ const Layout = () => {
           {/* RIGHT: Navigation */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
             <nav style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-              <Link to="/proposals" style={{
-                color: 'var(--color-white)',
-                textDecoration: 'none',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 600,
-                fontSize: '14px',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
-                Past Proposals
-              </Link>
               {user && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: '16px', paddingLeft: '16px', borderLeft: '1px solid var(--color-border-light)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <span style={{ color: 'var(--color-muted-blue)', fontSize: '14px' }}>{user.email}</span>
                   
                   <button 

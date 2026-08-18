@@ -16,28 +16,10 @@ const Logo = () => (
   </div>
 );
 
-const Footer = () => (
-  <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-      <div style={{ width: '48px', height: '5px', backgroundColor: 'var(--color-orange)', borderRadius: '3px' }}></div>
-      <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--color-white)', fontSize: '20px', letterSpacing: '1px' }}>{brandConfig.companyName}</div>
-        <div style={{ fontFamily: 'var(--font-body)', color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>{brandConfig.companyEmail}</div>
-      </div>
-    </div>
-    <div style={{ textAlign: 'right' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--color-white)', fontSize: '20px' }}>CLOSE <span style={{ color: 'var(--color-teal)' }}>PRECISE.</span></div>
-      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', fontSize: '10px', letterSpacing: '1px', marginTop: '2px' }}>{brandConfig.footerText}</div>
-      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-orange)', fontSize: '10px', letterSpacing: '1px' }}>{brandConfig.footerPartners}</div>
-    </div>
-  </div>
-);
-
 const Page = ({ children, id }) => (
   <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
     <div className="left-accent-bar"></div>
     {children}
-    <Footer />
   </div>
 );
 
@@ -485,7 +467,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
               return (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: `${100 / formData.projectSchedule.length}%`, zIndex: 2 }}>
                   <div className="timeline-node" style={{ borderColor: color }}>
-                     <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: color }}></div>
+                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}></div>
                   </div>
                   <div className="timeline-content">
                     <div style={{ fontSize: '11px', color: color, fontWeight: 'bold' }}>{idx + 1}. {phase.name}</div>

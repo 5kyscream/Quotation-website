@@ -5,8 +5,8 @@ import { ArrowRight, FileText } from 'lucide-react';
 
 const Dashboard = () => {
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '60px', position: 'relative' }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', paddingTop: '80px' }}>
+      <div style={{ textAlign: 'center', margin: '0 auto 60px', position: 'relative' }}>
         <div className="bg-diagonal-teal" style={{ top: '-50px', right: '10%' }}></div>
         <h1 className="headline-1" style={{ fontSize: '72px', marginBottom: '16px' }}>
           Vykon <span className="headline-2">Proposal Studio</span>

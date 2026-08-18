@@ -24,10 +24,10 @@ const Layout = () => {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{
         backgroundColor: 'var(--color-navy)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '16px 0'
+        borderBottom: '1px solid var(--color-border-light)',
+        padding: '16px 40px'
       }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           
           {/* LEFT: Logo */}
           <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>

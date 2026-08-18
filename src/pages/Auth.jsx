@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Loader, Eye, EyeOff } from 'lucide-react';
+import { Zap, Loader, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -75,18 +75,17 @@ const Auth = () => {
           background: 'var(--color-bg-subtle)', 
           border: '1px solid var(--color-border-medium)', 
           color: 'var(--color-white)', 
-          padding: '8px 16px', 
+          padding: '8px', 
           borderRadius: '4px', 
           cursor: 'pointer', 
-          fontSize: '14px', 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '8px',
-          fontWeight: 600,
+          justifyContent: 'center',
           zIndex: 10
         }}
+        title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
       >
-        {isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+        {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
       </button>
       
       <div style={{

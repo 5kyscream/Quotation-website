@@ -170,6 +170,10 @@ body {
   z-index: 0;
 }
 
+body.light-mode .bg-grid::before {
+  opacity: 0.15;
+}
+
 .bg-ghost-initials {
   position: absolute;
   bottom: -50px;

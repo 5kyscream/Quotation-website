@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Plus, Trash2, Sun, Moon } from 'lucide-react';
 import { getNextProposalNumber } from '../utils/storage';
 import ProposalDocument from '../pdf/ProposalDocument';
 
@@ -172,12 +172,12 @@ const ProposalForm = () => {
             }} 
             style={{ 
               background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border-medium)', 
-              color: 'var(--color-white)', padding: '6px 12px', borderRadius: '4px', 
-              cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px',
-              fontWeight: 600
+              color: 'var(--color-white)', padding: '8px', borderRadius: '4px', 
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
+            title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
           >
-            {isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
           </button>
         </div>
         {renderStepIndicator()}

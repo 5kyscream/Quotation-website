@@ -130,15 +130,24 @@ const Auth = () => {
           {!isLogin && (
             <div className="input-group">
               <label>Confirm Password</label>
-              <input 
-                type={showPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                style={{ width: '100%', boxSizing: 'border-box' }}
-                className="form-input"
-              />
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  style={{ width: '100%', boxSizing: 'border-box', paddingRight: '40px' }}
+                  className="form-input"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-muted-blue)', cursor: 'pointer' }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
           )}
           

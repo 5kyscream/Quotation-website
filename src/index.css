@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600&display=swap');
 
 :root {
-  --color-border-light: var(--color-border-light);
-  --color-border-medium: var(--color-border-medium);
-  --color-bg-subtle: var(--color-bg-subtle);
-  --color-bg-hover: var(--color-bg-hover);
-  --color-bg-card: var(--color-bg-card);
+  --color-border-light: rgba(255, 255, 255, 0.1);
+  --color-border-medium: rgba(255, 255, 255, 0.2);
+  --color-bg-subtle: rgba(255, 255, 255, 0.02);
+  --color-bg-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-card: rgba(255, 255, 255, 0.08);
 
   --color-midnight: #1A1A2E;
   --color-navy: #0A1B3D;
@@ -137,6 +137,14 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--color-teal);
+}
+
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover, 
+.form-input:-webkit-autofill:focus, 
+.form-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-navy) inset !important;
+  -webkit-text-fill-color: var(--color-white) !important;
 }
 
 /* Layout Utilities */

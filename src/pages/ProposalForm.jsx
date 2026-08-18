@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Plus, Trash2, Sun, Moon } from 'lucide-react';
 import { getNextProposalNumber } from '../utils/storage';
 import ProposalDocument from '../pdf/ProposalDocument';
+import SiteAddressInput from '../components/SiteAddressInput';
 
 const defaultScope = [
   { id: 1, name: "Safe Access to Roof", epc: false, cust: true },
@@ -65,6 +66,8 @@ const ProposalForm = () => {
     consumerNumber: '',
     email: '',
     siteAddress: '',
+    lat: null,
+    lng: null,
     additionalAddress: '',
     state: '',
     monthlyConsumption: '',
@@ -239,7 +242,13 @@ const ProposalForm = () => {
                 </div>
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Site Address *</label>
-                  <input required type="text" name="siteAddress" value={formData.siteAddress} onChange={handleChange} className="form-input" />
+                  <SiteAddressInput 
+                    value={formData.siteAddress}
+                    onChange={(text) => setFormData(prev => ({ ...prev, siteAddress: text }))}
+                    onCoordsChange={(lat, lng) => setFormData(prev => ({ ...prev, lat, lng }))}
+                    lat={formData.lat}
+                    lng={formData.lng}
+                  />
                 </div>
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Additional address details</label>

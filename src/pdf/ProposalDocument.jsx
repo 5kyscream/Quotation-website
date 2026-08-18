@@ -165,7 +165,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
               height="100%"
               frameBorder="0"
               style={{ border: 0, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-              src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.siteAddress || 'India')}&t=k&z=17&ie=UTF8&iwloc=&output=embed`}
+              src={
+                formData.lat && formData.lng
+                  ? `https://maps.google.com/maps?q=${formData.lat},${formData.lng}&t=k&z=17&ie=UTF8&iwloc=&output=embed`
+                  : `https://maps.google.com/maps?q=${encodeURIComponent(formData.siteAddress || 'India')}&t=k&z=17&ie=UTF8&iwloc=&output=embed`
+              }
               allowFullScreen
               title="Site Map"
             ></iframe>

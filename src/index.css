@@ -328,16 +328,24 @@ body {
 .wizard-right {
   background-color: #0b0c10;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 40px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
+.wizard-right::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
 .live-preview-wrapper {
   transform-origin: top center;
   box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   border: 1px solid rgba(255,255,255,0.1);
+  width: 210mm;
+  /* Instead of scaling and letting it overflow, let's keep width fixed and scale down */
 }
 
 /* Steps Indicator */

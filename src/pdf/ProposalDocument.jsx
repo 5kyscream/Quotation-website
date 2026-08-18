@@ -168,10 +168,16 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
 
         <SectionHeader title="Customer" highlight="Details" />
         <div style={{ display: 'flex', gap: '24px' }}>
-          <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '100%', minHeight: '160px', backgroundColor: 'var(--color-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               <MapPin color="var(--color-muted-blue)" size={48} />
-            </div>
+          <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', overflow: 'hidden', position: 'relative', minHeight: '160px' }}>
+            <iframe
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              style={{ border: 0, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(formData.siteAddress || 'India')}&t=k&z=17&ie=UTF8&iwloc=&output=embed`}
+              allowFullScreen
+              title="Site Map"
+            ></iframe>
           </div>
           <div style={{ flex: 2 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

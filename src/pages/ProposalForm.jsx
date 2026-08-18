@@ -48,6 +48,7 @@ const ProposalForm = () => {
   const location = useLocation();
   const editData = location.state?.editData;
   const [step, setStep] = useState(1);
+  const [editProposalNo, setEditProposalNo] = useState(false);
   
   const [formData, setFormData] = useState(editData || {
     // Step 1: Cover
@@ -64,7 +65,7 @@ const ProposalForm = () => {
     email: '',
     siteAddress: '',
     additionalAddress: '',
-    state: 'Maharashtra',
+    state: '',
     monthlyConsumption: '',
 
     // Step 3: System & Cost
@@ -176,7 +177,7 @@ const ProposalForm = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div className="form-group">
-                  <label className="form-label">Company Name *</label>
+                  <label className="form-label">Client Name / Company *</label>
                   <input required type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
@@ -191,9 +192,14 @@ const ProposalForm = () => {
                   <label className="form-label">Date</label>
                   <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-input" />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Proposal no.</label>
-                  <input type="text" name="proposalNumber" value={formData.proposalNumber} onChange={handleChange} className="form-input" />
+                <div className="form-group" style={{ position: 'relative' }}>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    Proposal no.
+                    <span style={{ color: 'var(--color-teal)', cursor: 'pointer', fontSize: '12px' }} onClick={() => setEditProposalNo(!editProposalNo)}>
+                      {editProposalNo ? 'Lock' : 'Edit'}
+                    </span>
+                  </label>
+                  <input type="text" name="proposalNumber" value={formData.proposalNumber} onChange={handleChange} className="form-input" disabled={!editProposalNo} style={{ opacity: editProposalNo ? 1 : 0.6 }} />
                 </div>
               </div>
             </div>

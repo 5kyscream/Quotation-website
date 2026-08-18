@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ProposalDocument from '../pdf/ProposalDocument';
-import { generatePdf } from '../pdf/PdfRenderer';
+import { generatePptx } from '../utils/PptxRenderer';
 import { saveProposal } from '../utils/storage';
 import { Download, Save, ArrowLeft } from 'lucide-react';
 
@@ -25,10 +25,10 @@ const PreviewExport = () => {
   const handleDownload = async () => {
     setIsGenerating(true);
     try {
-      await generatePdf(docRef, `Proposal_${formData.proposalNumber}_${formData.companyName.replace(/\s+/g, '_')}`);
+      await generatePptx(formData);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please check the console.');
+      console.error('Error generating PPTX:', error);
+      alert('Failed to generate Presentation. Please check the console.');
     }
     setIsGenerating(false);
   };
@@ -58,8 +58,8 @@ const PreviewExport = () => {
           <button onClick={handleSave} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Save size={20} /> Save to Dashboard
           </button>
-          <button onClick={handleDownload} disabled={isGenerating} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Download size={20} /> {isGenerating ? 'Generating PDF...' : 'Download PDF'}
+          <button onClick={handleDownload} disabled={isGenerating} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#D04A02' }}>
+            <Download size={20} /> {isGenerating ? 'Generating...' : 'Download Editable PPTX'}
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light-mode'));
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -54,9 +55,39 @@ const Auth = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'var(--color-bg)',
-      padding: '20px'
+      backgroundColor: 'var(--color-midnight)',
+      padding: '20px',
+      position: 'relative'
     }} className="bg-grid">
+      
+      <button 
+        type="button"
+        onClick={() => {
+          const newMode = !isLightMode;
+          setIsLightMode(newMode);
+          if (newMode) document.body.classList.add('light-mode');
+          else document.body.classList.remove('light-mode');
+        }} 
+        style={{ 
+          position: 'absolute',
+          top: '24px',
+          right: '24px',
+          background: 'var(--color-bg-subtle)', 
+          border: '1px solid var(--color-border-medium)', 
+          color: 'var(--color-white)', 
+          padding: '8px 16px', 
+          borderRadius: '4px', 
+          cursor: 'pointer', 
+          fontSize: '14px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          fontWeight: 600,
+          zIndex: 10
+        }}
+      >
+        {isLightMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+      </button>
       
       <div style={{
         backgroundColor: 'var(--color-navy)',

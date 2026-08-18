@@ -38,13 +38,22 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
   // Sync scroll with activeStep
   useEffect(() => {
     if (activeStep && containerRef.current && layout === 'column') {
-      // Approximate step to page mapping
-      let pageId = `page-${activeStep}`;
-      if (activeStep > 6 && !formData.isLoan) {
-        pageId = `page-${activeStep - 1}`; // Account for skipped loan page
+      let targetPage = 1;
+      switch(activeStep) {
+        case 1: targetPage = 1; break; // Cover
+        case 2: targetPage = 2; break; // Customer
+        case 3: targetPage = 2; break; // Cost & generation impacts Page 2 heavily
+        case 4: targetPage = 3; break; // Pricing & Payment
+        case 5: targetPage = 4; break; // Outcomes
+        case 6: targetPage = formData.isLoan ? 5 : 4; break; // Financing
+        case 7: targetPage = formData.isLoan ? 6 : 5; break; // Scope
+        case 8: targetPage = formData.isLoan ? 7 : 6; break; // BoM
+        case 9: targetPage = formData.isLoan ? 8 : 7; break; // Terms
+        case 10: targetPage = formData.isLoan ? 10 : 9; break; // Contact (skip About page)
+        default: targetPage = 1;
       }
       
-      const el = containerRef.current.querySelector(`#${pageId}`);
+      const el = containerRef.current.querySelector(`#page-${targetPage}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }

@@ -101,7 +101,7 @@ const Auth = () => {
       }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
-          <img src="/logo.png" alt="Vykon Logo" style={{ height: '64px', marginBottom: '16px' }} />
+          <img src={isLightMode ? "/logo-dark.png" : "/logo.png"} alt="Vykon Logo" style={{ height: '64px', marginBottom: '16px' }} />
           <h1 className="subheading" style={{ fontSize: '24px', margin: 0, textAlign: 'center' }}>
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h1>

@@ -125,7 +125,10 @@ const ProposalForm = () => {
       backgroundColor: '',
       cardColor: '',
       textColor: ''
-    }
+    },
+    
+    // Field-specific colors
+    fieldColors: {}
   });
 
   useEffect(() => {
@@ -153,6 +156,18 @@ const ProposalForm = () => {
       ...prev,
       theme: {
         ...(prev.theme || {}),
+        [key]: value
+      }
+    }));
+  };
+
+  const handleFieldColorChange = (e) => {
+    const { name, value } = e.target;
+    const key = name.split('.')[1];
+    setFormData(prev => ({
+      ...prev,
+      fieldColors: {
+        ...(prev.fieldColors || {}),
         [key]: value
       }
     }));
@@ -195,7 +210,10 @@ const ProposalForm = () => {
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 1: Cover Page</h2>
               
               <div className="form-group">
-                <label className="form-label">Customer Type *</label>
+                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Customer Type *</span>
+                  <input type="color" name="fieldColors.customerType" value={formData.fieldColors?.customerType || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                </label>
                 <select name="customerType" value={formData.customerType} onChange={handleChange} className="form-input">
                   <option value="Commercial">Commercial</option>
                   <option value="Residential">Residential</option>
@@ -204,15 +222,24 @@ const ProposalForm = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div className="form-group">
-                  <label className="form-label">Client Name / Company *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Client Name / Company *</span>
+                    <input type="color" name="fieldColors.companyName" value={formData.fieldColors?.companyName || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Contact Person Name *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Contact Person Name *</span>
+                    <input type="color" name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Project size (kWp) *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Project size (kWp) *</span>
+                    <input type="color" name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
@@ -275,15 +302,24 @@ const ProposalForm = () => {
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 3: System & Cost</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                 <div className="form-group">
-                  <label className="form-label">Project Capacity (kWp) *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Project Capacity (kWp) *</span>
+                    <input type="color" name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Electricity Tariff (₹ per kWh) *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Electricity Tariff (₹ per kWh) *</span>
+                    <input type="color" name="fieldColors.tariffRate" value={formData.fieldColors?.tariffRate || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="number" step="0.01" name="tariffRate" value={formData.tariffRate} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Cost per Wp (₹, excl. GST) *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Cost per Wp (₹, excl. GST) *</span>
+                    <input type="color" name="fieldColors.costPerWp" value={formData.fieldColors?.costPerWp || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  </label>
                   <input required type="number" step="0.01" name="costPerWp" value={formData.costPerWp} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">

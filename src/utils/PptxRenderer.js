@@ -45,14 +45,33 @@ export const generatePptx = async (formData) => {
     slide.addShape(pptx.ShapeType.line, { x: 0.5, y: 0.8, w: 9, h: 0, line: { color: COLORS.teal, width: 1 } });
   };
 
+  // Helper function to process color for PPTX (removes #)
+  const getFieldColor = (fieldName, fallback) => {
+    return (formData.fieldColors?.[fieldName] || fallback).replace('#', '');
+  };
+
   // --- SLIDE 1: COVER ---
   let slide1 = pptx.addSlide({ masterName: "VYKON_MASTER" });
   slide1.addText(`PROPOSAL NO: ${formData.proposalNumber}`, { x: 0.5, y: 1.5, w: 4, h: 0.3, fontSize: 10, color: COLORS.teal, bold: true });
-  slide1.addText(`${formData.capacity} kWp\nSOLAR PV SOLUTION`, { x: 0.5, y: 2, w: 8, h: 1.5, fontSize: 40, color: COLORS.white, bold: true });
   
-  slide1.addText(`PREPARED FOR: ${formData.customerType}`, { x: 0.5, y: 4.0, w: 4, h: 0.2, fontSize: 10, color: COLORS.muted, bold: true });
-  slide1.addText(formData.companyName, { x: 0.5, y: 4.2, w: 8, h: 0.4, fontSize: 24, color: COLORS.white, bold: true });
-  slide1.addText(`Attn: ${formData.contactPerson}\n${formData.siteAddress}`, { x: 0.5, y: 4.6, w: 8, h: 0.4, fontSize: 12, color: COLORS.earth });
+  // Capacity & Title
+  slide1.addText([
+    { text: `${formData.capacity} `, options: { color: getFieldColor('capacity', COLORS.white) } },
+    { text: `kWp\nSOLAR PV SOLUTION`, options: { color: COLORS.white } }
+  ], { x: 0.5, y: 2, w: 8, h: 1.5, fontSize: 40, bold: true });
+  
+  slide1.addText([
+    { text: `PREPARED FOR: `, options: { color: COLORS.muted } },
+    { text: formData.customerType, options: { color: getFieldColor('customerType', COLORS.muted) } }
+  ], { x: 0.5, y: 4.0, w: 4, h: 0.2, fontSize: 10, bold: true });
+  
+  slide1.addText(formData.companyName, { x: 0.5, y: 4.2, w: 8, h: 0.4, fontSize: 24, color: getFieldColor('companyName', COLORS.white), bold: true });
+  
+  slide1.addText([
+    { text: `Attn: `, options: { color: COLORS.earth } },
+    { text: formData.contactPerson, options: { color: getFieldColor('contactPerson', COLORS.earth) } },
+    { text: `\n${formData.siteAddress}`, options: { color: COLORS.earth } }
+  ], { x: 0.5, y: 4.6, w: 8, h: 0.4, fontSize: 12 });
 
   // --- SLIDE 2: BENEFITS IN NUMBERS ---
   let slide2 = pptx.addSlide({ masterName: "VYKON_MASTER" });

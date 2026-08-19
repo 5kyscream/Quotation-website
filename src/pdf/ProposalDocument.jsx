@@ -102,14 +102,18 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
           
           <h1 className="headline-1" style={{ fontSize: '80px', marginBottom: '8px' }}>
-            {formData.capacity} kWp <br />
+            <span style={{ color: formData.fieldColors?.capacity || 'inherit' }}>{formData.capacity}</span> kWp <br />
             <span className="headline-2">SOLAR PV SOLUTION</span>
           </h1>
           
           <div style={{ marginTop: '60px', borderLeft: '4px solid var(--color-orange)', paddingLeft: '24px' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginBottom: '8px' }}>PREPARED FOR: {formData.customerType}</p>
-            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>Attn: {formData.contactPerson}</p>
+            <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginBottom: '8px' }}>
+              PREPARED FOR: <span style={{ color: formData.fieldColors?.customerType || 'inherit' }}>{formData.customerType}</span>
+            </p>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: formData.fieldColors?.companyName || 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
+            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>
+              Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'inherit' }}>{formData.contactPerson}</span>
+            </p>
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px' }}>{formData.date}</p>
           </div>
         </div>

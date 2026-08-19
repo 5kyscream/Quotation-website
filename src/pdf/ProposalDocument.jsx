@@ -4,7 +4,9 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+const Logo = ({ effectiveBg }) => {
   const getLuminance = (hex) => {
+    if (!hex) return 0;
     hex = hex.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16) || 0;
     const g = parseInt(hex.substring(2, 4), 16) || 0;
@@ -12,7 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   };
 
-  const isLightBg = getLuminance(effectiveBg) > 0.5;
+  const isLightBg = effectiveBg ? getLuminance(effectiveBg) > 0.5 : document.body.classList.contains('light-mode');
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -50,7 +52,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
   const effectiveBg = formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10');
   const effectiveCardBg = formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833');
-  
+
   const isLightBg = getLuminance(effectiveBg) > 0.5;
   const isLightCard = getLuminance(effectiveCardBg) > 0.5;
 
@@ -58,7 +60,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
   useEffect(() => {
     if (activeStep && containerRef.current && layout === 'column') {
       let targetPage = 1;
-      switch(activeStep) {
+      switch (activeStep) {
         case 1: targetPage = 1; break; // Cover
         case 2: targetPage = 2; break; // Customer
         case 3: targetPage = 2; break; // Cost & generation impacts Page 2 heavily
@@ -71,7 +73,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         case 10: targetPage = formData.isLoan ? 10 : 9; break; // Contact (skip About page)
         default: targetPage = 1;
       }
-      
+
       const el = containerRef.current.querySelector(`#page-${targetPage}`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -81,13 +83,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
   // Chart Data
   const monthlyGenData = Array.from({ length: 12 }, (_, i) => ({
-    name: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i],
+    name: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i],
     value: Math.round(fin.annualGeneration / 12 * (1 + Math.sin(i) * 0.1))
   }));
 
   const gen25YrData = Array.from({ length: 25 }, (_, i) => ({
     year: `20${25 + i}`,
-    value: Math.round(fin.annualGeneration * Math.pow(1 - (parseFloat(formData.degradationRate)/100), i))
+    value: Math.round(fin.annualGeneration * Math.pow(1 - (parseFloat(formData.degradationRate) / 100), i))
   }));
 
   let cumulative = 0;
@@ -96,7 +98,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
   const savings25YrData = Array.from({ length: 25 }, (_, i) => {
     cumulative += currentGen * currentTariff;
     currentTariff *= 1.03; // 3% escalation default
-    currentGen *= (1 - (parseFloat(formData.degradationRate)/100));
+    currentGen *= (1 - (parseFloat(formData.degradationRate) / 100));
     return { year: `20${25 + i}`, value: Math.round(cumulative / 100000) };
   });
 
@@ -127,24 +129,24 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           }
         `}
       </style>
-      
+
       {/* PAGE 1: COVER (Step 1) */}
       <Page id="page-1">
         <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
         <Logo effectiveBg={effectiveBg} />
-        
+
         <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>
             PROPOSAL NO: {formData.proposalNumber}
           </div>
-          
+
           <h1 className="headline-1" style={{ fontSize: '80px', marginBottom: '8px' }}>
             <span style={{ color: formData.fieldColors?.capacity || 'inherit' }}>{formData.capacity}</span> kWp <br />
             <span className="headline-2">SOLAR PV SOLUTION</span>
           </h1>
-          
+
           <div style={{ marginTop: '60px', borderLeft: '4px solid var(--color-orange)', paddingLeft: '24px' }}>
             <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginBottom: '8px' }}>
               PREPARED FOR: <span style={{ color: formData.fieldColors?.customerType || 'inherit' }}>{formData.customerType}</span>
@@ -177,7 +179,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>1st Year Est. Savings</div>
             <div style={{ fontSize: '24px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
           </div>
-          
+
           <div className="vykon-card" style={{ backgroundColor: 'var(--color-bg-subtle)' }}>
             <div style={{ fontSize: '11px', color: 'var(--color-muted-blue)', textTransform: 'uppercase', fontWeight: 600 }}>Average Annual Savings</div>
             <div style={{ fontSize: '20px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.averageAnnualSavings)}</div>
@@ -234,7 +236,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               </div>
               <div>
                 <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Phone / Email</div>
-                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.consumerNumber || '—'} <br/> {formData.email || ''}</div>
+                <div style={{ fontSize: '14px', fontWeight: 600 }}>{formData.consumerNumber || '—'} <br /> {formData.email || ''}</div>
               </div>
               <div>
                 <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Avg Monthly Consumption</div>
@@ -252,7 +254,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       {/* PAGE 3: SYSTEM PRICING (Step 4) */}
       <Page id="page-3">
         <SectionHeader title="System" highlight="Pricing" isLightBg={isLightBg} />
-        
+
         <table className="vykon-table">
           <thead>
             <tr>
@@ -360,7 +362,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       {/* PAGE 4: PROJECT OUTCOMES (Step 5) */}
       <Page id="page-4">
         <SectionHeader title="Project" highlight="Outcomes" isLightBg={isLightBg} />
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
             <ZapIcon size={20} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
@@ -385,7 +387,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <BarChart data={monthlyGenData}>
               <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} />
               <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
+              <Tooltip cursor={{ fill: 'var(--color-bg-hover)' }} contentStyle={{ backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white' }} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -396,8 +398,8 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={gen25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
-              <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val/1000).toFixed(0)}k`} />
-              <Tooltip cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-orange)', color: 'white'}} />
+              <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`} />
+              <Tooltip cursor={{ fill: 'var(--color-bg-hover)' }} contentStyle={{ backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-orange)', color: 'white' }} />
               <Bar dataKey="value" fill="var(--color-orange)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -409,7 +411,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <BarChart data={savings25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
               <YAxis stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip formatter={(value) => `₹${value}L`} cursor={{fill: 'var(--color-bg-hover)'}} contentStyle={{backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white'}} />
+              <Tooltip formatter={(value) => `₹${value}L`} cursor={{ fill: 'var(--color-bg-hover)' }} contentStyle={{ backgroundColor: 'var(--color-navy)', border: '1px solid var(--color-teal)', color: 'white' }} />
               <Bar dataKey="value" fill="var(--color-teal)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -420,7 +422,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       {formData.isLoan && (
         <Page id="page-5">
           <SectionHeader title="Loan" highlight="Option" isLightBg={isLightBg} />
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
             <div style={{ flex: '0 0 120px', display: 'flex', justifyContent: 'center' }}>
               <Banknote size={80} color="var(--color-teal)" />
@@ -435,7 +437,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               </div>
             </div>
           </div>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Banknote size={24} color="var(--color-teal)" style={{ margin: '0 auto 12px' }} />
@@ -453,7 +455,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Monthly Installment</div>
             </div>
           </div>
-          
+
           <p style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '32px', fontStyle: 'italic' }}>
             *The loan details are based on a financial structure with a {formData.downPayment}% upfront down payment, an annual interest rate of {formData.interestRate}%, and a repayment period of {formData.tenureYears} years.
           </p>
@@ -528,7 +530,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               return (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: `${100 / formData.projectSchedule.length}%`, zIndex: 2 }}>
                   <div className="timeline-node" style={{ borderColor: color }}>
-                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}></div>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}></div>
                   </div>
                   <div className="timeline-content">
                     <div style={{ fontSize: '11px', color: color, fontWeight: 'bold' }}>{idx + 1}. {phase.name}</div>
@@ -608,11 +610,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       <Page id={formData.isLoan ? "page-9" : "page-8"}>
         <SectionHeader title="About" highlight={brandConfig.companyName} isLightBg={isLightBg} />
         <p style={{ color: 'var(--color-white)', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>
-          We are dedicated to providing state-of-the-art solar infrastructure solutions across India. 
+          We are dedicated to providing state-of-the-art solar infrastructure solutions across India.
           Our commitment to quality, precise engineering, and customer satisfaction has made us a trusted partner in the renewable energy sector.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-           <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
+          <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
             <div style={{ fontSize: '40px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{brandConfig.stats.capacity}</div>
             <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Installed Solar Capacity</div>
           </div>
@@ -633,18 +635,18 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         <p style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.6, marginBottom: '24px' }}>
           Our goal is to provide clean, renewable, green energy to discern customers such as yourself. By choosing solar energy, you're not just investing in clean, renewable power — you're joining us in creating a more sustainable future for generations to come. Let's work together to make a positive impact on our planet.
         </p>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '40px' }}>
-           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
-            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.co2Offset.toLocaleString(undefined, {maximumFractionDigits:0})} Tonnes</div>
+          <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.co2Offset.toLocaleString(undefined, { maximumFractionDigits: 0 })} Tonnes</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>CO2 Offset</div>
           </div>
           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
-            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.treesEquivalent.toLocaleString(undefined, {maximumFractionDigits:0})} Nos.</div>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.treesEquivalent.toLocaleString(undefined, { maximumFractionDigits: 0 })} Nos.</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Trees Planted</div>
           </div>
           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
-            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.distanceDriven.toLocaleString(undefined, {maximumFractionDigits:0})} Lakh Kms</div>
+            <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.distanceDriven.toLocaleString(undefined, { maximumFractionDigits: 0 })} Lakh Kms</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Distance Driven</div>
           </div>
         </div>

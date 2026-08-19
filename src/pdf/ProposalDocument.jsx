@@ -4,21 +4,10 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const Logo = ({ isLightMode, customBgColor }) => {
-  let isLight = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
-  
-  if (customBgColor) {
-    const hex = customBgColor.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16) || 0;
-    const g = parseInt(hex.substring(2, 4), 16) || 0;
-    const b = parseInt(hex.substring(4, 6), 16) || 0;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    isLight = luminance > 0.5;
-  }
-
+const Logo = ({ isLightBg }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <img src={isLight ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
+      <img src={isLightBg ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
     </div>
   );
 };
@@ -30,9 +19,9 @@ const Page = ({ children, id }) => (
   </div>
 );
 
-const SectionHeader = ({ title, highlight }) => (
+const SectionHeader = ({ title, highlight, isLightBg }) => (
   <div style={{ borderBottom: '1px solid var(--color-teal)', marginBottom: '24px', paddingBottom: '12px' }}>
-    <h2 className="headline-1" style={{ fontSize: '32px' }}>
+    <h2 className="headline-1" style={{ fontSize: '32px', color: isLightBg ? '#1a1a1a' : '#ffffff' }}>
       {title} <span className="headline-2">{highlight}</span>
     </h2>
   </div>
@@ -41,6 +30,17 @@ const SectionHeader = ({ title, highlight }) => (
 const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', isLightMode }, ref) => {
   const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
+
+  const customBgColor = formData.theme?.backgroundColor;
+  let isLightBg = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
+  if (customBgColor) {
+    const hex = customBgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const g = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    isLightBg = luminance > 0.5;
+  }
 
   // Sync scroll with activeStep
   useEffect(() => {
@@ -104,7 +104,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
-        <Logo isLightMode={isLightMode} customBgColor={formData.theme?.backgroundColor} />
+        <Logo isLightBg={isLightBg} />
         
         <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>
@@ -131,7 +131,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 2: BENEFITS IN NUMBERS & CUSTOMER DETAILS (Step 2) */}
       <Page id="page-2">
-        <SectionHeader title="Benefits in" highlight="Numbers" />
+        <SectionHeader title="Benefits in" highlight="Numbers" isLightBg={isLightBg} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
           <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
             <ZapIcon size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
@@ -176,7 +176,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
         </div>
 
-        <SectionHeader title="Customer" highlight="Details" />
+        <SectionHeader title="Customer" highlight="Details" isLightBg={isLightBg} />
         <div style={{ display: 'flex', gap: '24px' }}>
           <div style={{ flex: 1, backgroundColor: 'var(--color-bg-hover)', borderRadius: '8px', overflow: 'hidden', position: 'relative', minHeight: '160px' }}>
             <iframe
@@ -222,7 +222,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 3: SYSTEM PRICING (Step 4) */}
       <Page id="page-3">
-        <SectionHeader title="System" highlight="Pricing" />
+        <SectionHeader title="System" highlight="Pricing" isLightBg={isLightBg} />
         
         <table className="vykon-table">
           <thead>
@@ -330,7 +330,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 4: PROJECT OUTCOMES (Step 5) */}
       <Page id="page-4">
-        <SectionHeader title="Project" highlight="Outcomes" />
+        <SectionHeader title="Project" highlight="Outcomes" isLightBg={isLightBg} />
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
@@ -390,7 +390,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       {/* PAGE 5: LOAN OPTION (Step 6 - Conditional) */}
       {formData.isLoan && (
         <Page id="page-5">
-          <SectionHeader title="Loan" highlight="Option" />
+          <SectionHeader title="Loan" highlight="Option" isLightBg={isLightBg} />
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
             <div style={{ flex: '0 0 120px', display: 'flex', justifyContent: 'center' }}>
@@ -469,7 +469,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 6: SCOPE OF WORK & TIMELINE (Step 7) */}
       <Page id={formData.isLoan ? "page-6" : "page-5"}>
-        <SectionHeader title="Scope of" highlight="Work" />
+        <SectionHeader title="Scope of" highlight="Work" isLightBg={isLightBg} />
         <table className="vykon-table">
           <thead>
             <tr>
@@ -490,7 +490,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         </table>
 
         <div style={{ height: '32px' }}></div>
-        <SectionHeader title="Project" highlight="Schedule" />
+        <SectionHeader title="Project" highlight="Schedule" isLightBg={isLightBg} />
         <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid var(--color-border-light)' }}>
           <div className="vykon-timeline">
             {formData.projectSchedule.map((phase, idx) => {
@@ -514,7 +514,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 7: BoM & Warranty (Step 8) */}
       <Page id={formData.isLoan ? "page-7" : "page-6"}>
-        <SectionHeader title="Bill of" highlight="Materials" />
+        <SectionHeader title="Bill of" highlight="Materials" isLightBg={isLightBg} />
         <table className="vykon-table">
           <thead>
             <tr>
@@ -535,7 +535,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         </table>
 
         <div style={{ height: '32px' }}></div>
-        <SectionHeader title="Warranty" highlight="Terms" />
+        <SectionHeader title="Warranty" highlight="Terms" isLightBg={isLightBg} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
             <Sun size={28} color="var(--color-orange)" style={{ margin: '0 auto 12px' }} />
@@ -560,7 +560,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 8: Terms & Conditions (Step 9) */}
       <Page id={formData.isLoan ? "page-8" : "page-7"}>
-        <SectionHeader title="Terms &" highlight="Conditions" />
+        <SectionHeader title="Terms &" highlight="Conditions" isLightBg={isLightBg} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {formData.termsConditions.map((term, idx) => (
             <div key={idx} style={{ display: 'flex', gap: '24px' }}>
@@ -577,7 +577,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 9: About Vykon (Stats) (Auto-injected) */}
       <Page id={formData.isLoan ? "page-9" : "page-8"}>
-        <SectionHeader title="About" highlight={brandConfig.companyName} />
+        <SectionHeader title="About" highlight={brandConfig.companyName} isLightBg={isLightBg} />
         <p style={{ color: 'var(--color-white)', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>
           We are dedicated to providing state-of-the-art solar infrastructure solutions across India. 
           Our commitment to quality, precise engineering, and customer satisfaction has made us a trusted partner in the renewable energy sector.
@@ -600,7 +600,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 10: Environmental & Contact (Step 10) */}
       <Page id={formData.isLoan ? "page-10" : "page-9"}>
-        <SectionHeader title="Environmental" highlight="Impact" />
+        <SectionHeader title="Environmental" highlight="Impact" isLightBg={isLightBg} />
         <p style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.6, marginBottom: '24px' }}>
           Our goal is to provide clean, renewable, green energy to discern customers such as yourself. By choosing solar energy, you're not just investing in clean, renewable power — you're joining us in creating a more sustainable future for generations to come. Let's work together to make a positive impact on our planet.
         </p>

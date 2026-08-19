@@ -6,8 +6,9 @@ import ProposalDocument from '../pdf/ProposalDocument';
 import SiteAddressInput from '../components/SiteAddressInput';
 
 const PRESET_COLORS = ['#FFFFFF', '#F5F0E8', '#000000', '#1A1A2E', '#0A1B3D', '#F4621F', '#00C2A8', '#D4C5A0'];
+const BG_PRESET_COLORS = ['#FFFFFF', '#F5F0E8', '#EAEAEA', '#000000', '#1A1A2E', '#0A1B3D', '#121212', '#222222'];
 
-const CustomColorPicker = ({ value, onChange, name, title }) => {
+const CustomColorPicker = ({ value, onChange, name, title, presets = PRESET_COLORS }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const popoverRef = React.useRef(null);
 
@@ -51,7 +52,7 @@ const CustomColorPicker = ({ value, onChange, name, title }) => {
         }}>
           <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Standard Palette</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '20px' }}>
-            {PRESET_COLORS.map(color => (
+            {presets.map(color => (
               <div 
                 key={color} 
                 onClick={() => handlePresetClick(color)}
@@ -61,15 +62,15 @@ const CustomColorPicker = ({ value, onChange, name, title }) => {
             ))}
           </div>
           <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Custom Hex</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--color-bg-hover)', padding: '6px 8px', borderRadius: '4px' }}>
+          <div style={{ position: 'relative', width: '100%', height: '32px', backgroundColor: 'var(--color-bg-hover)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--color-white)', zIndex: 1, pointerEvents: 'none' }}>PICK CUSTOM COLOR</span>
             <input 
               type="color" 
               name={name}
               value={value || '#ffffff'}
               onChange={onChange}
-              style={{ width: '24px', height: '24px', cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+              style={{ position: 'absolute', top: '-10px', left: '-10px', width: '200%', height: '200%', cursor: 'pointer', opacity: 0 }}
             />
-            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-white)' }}>{value || '#ffffff'}</span>
           </div>
         </div>
       )}
@@ -628,7 +629,7 @@ const ProposalForm = () => {
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Sec</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} title="Background" />
+               <CustomColorPicker name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} title="Background" presets={BG_PRESET_COLORS} />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Bg</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>

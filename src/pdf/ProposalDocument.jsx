@@ -4,7 +4,16 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const Logo = ({ isLightBg }) => {
+  const getLuminance = (hex) => {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const g = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  };
+
+  const isLightBg = getLuminance(effectiveBg) > 0.5;
+
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <img src={isLightBg ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
@@ -21,7 +30,7 @@ const Page = ({ children, id }) => (
 
 const SectionHeader = ({ title, highlight, isLightBg }) => (
   <div style={{ borderBottom: '1px solid var(--color-teal)', marginBottom: '24px', paddingBottom: '12px' }}>
-    <h2 className="headline-1" style={{ fontSize: '32px', color: isLightBg ? '#1a1a1a' : '#ffffff' }}>
+    <h2 className="headline-1" style={{ fontSize: '32px', color: 'var(--color-white)' }}>
       {title} <span className="headline-2">{highlight}</span>
     </h2>
   </div>
@@ -31,16 +40,19 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
   const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
 
-  const customBgColor = formData.theme?.backgroundColor;
-  let isLightBg = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
-  if (customBgColor) {
-    const hex = customBgColor.replace('#', '');
+  const getLuminance = (hex) => {
+    hex = hex.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16) || 0;
     const g = parseInt(hex.substring(2, 4), 16) || 0;
     const b = parseInt(hex.substring(4, 6), 16) || 0;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    isLightBg = luminance > 0.5;
-  }
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  };
+
+  const effectiveBg = formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10');
+  const effectiveCardBg = formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833');
+  
+  const isLightBg = getLuminance(effectiveBg) > 0.5;
+  const isLightCard = getLuminance(effectiveCardBg) > 0.5;
 
   // Sync scroll with activeStep
   useEffect(() => {
@@ -89,22 +101,39 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
   });
 
   const themeStyles = {
-    ...(formData.theme?.primaryColor ? { '--color-orange': formData.theme.primaryColor } : {}),
-    ...(formData.theme?.secondaryColor ? { '--color-teal': formData.theme.secondaryColor } : {}),
-    ...(formData.theme?.backgroundColor ? { '--color-midnight': formData.theme.backgroundColor } : {}),
-    ...(formData.theme?.cardColor ? { '--color-navy': formData.theme.cardColor } : {}),
-    ...(formData.theme?.textColor ? { '--color-white': formData.theme.textColor } : {}),
+    '--color-orange': formData.theme?.primaryColor || '#ff6b35',
+    '--color-teal': formData.theme?.secondaryColor || '#00c2a8',
+    '--color-midnight': effectiveBg,
+    '--color-navy': effectiveCardBg,
+    '--color-bg-card': effectiveCardBg
   };
 
   return (
-    <div ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0', ...themeStyles }}>
+    <div id="proposal-document-root" ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0', ...themeStyles }}>
+      <style>
+        {`
+          #proposal-document-root {
+            --color-white: ${formData.theme?.textColor || (isLightBg ? '#1a1a1a' : '#ffffff')};
+            --color-muted-blue: ${isLightBg ? '#667085' : '#8caac8'};
+            --color-earth: ${isLightBg ? '#8a7a5a' : '#d4c5a0'};
+            --color-border-light: ${isLightBg ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'};
+            --color-border-medium: ${isLightBg ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'};
+            --color-bg-hover: ${isLightBg ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'};
+            --color-bg-subtle: ${isLightBg ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'};
+          }
+          #proposal-document-root .vykon-card {
+            --color-white: ${formData.theme?.textColor || (isLightCard ? '#1a1a1a' : '#ffffff')};
+            --color-muted-blue: ${isLightCard ? '#667085' : '#8caac8'};
+          }
+        `}
+      </style>
       
       {/* PAGE 1: COVER (Step 1) */}
       <Page id="page-1">
         <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
-        <Logo isLightBg={isLightBg} />
+        <Logo effectiveBg={effectiveBg} />
         
         <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>

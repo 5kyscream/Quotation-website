@@ -186,23 +186,6 @@ const ProposalForm = () => {
       <div className="wizard-left">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h1 className="subheading" style={{ fontSize: '24px', margin: 0 }}>Create Proposal</h1>
-          <button 
-            type="button"
-            onClick={() => {
-              const newMode = !isLightMode;
-              setIsLightMode(newMode);
-              if (newMode) document.body.classList.add('light-mode');
-              else document.body.classList.remove('light-mode');
-            }} 
-            style={{ 
-              background: 'var(--color-bg-subtle)', border: '1px solid var(--color-border-medium)', 
-              color: 'var(--color-white)', padding: '8px', borderRadius: '4px', 
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
-          >
-            {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
         </div>
         {renderStepIndicator()}
         
@@ -530,23 +513,23 @@ const ProposalForm = () => {
            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Primary</label>
-               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} className="color-picker-input" />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Secondary</label>
-               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} className="color-picker-input" />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Background</label>
-               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} className="color-picker-input" />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Tiles</label>
-               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} className="color-picker-input" />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Text</label>
-               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} className="color-picker-input" />
              </div>
              <div style={{ display: 'flex', alignItems: 'center' }}>
                <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer' }}>Reset</button>

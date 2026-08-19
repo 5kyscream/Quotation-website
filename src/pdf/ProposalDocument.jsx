@@ -4,23 +4,21 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const Logo = ({ effectiveBg }) => {
-  const getLuminance = (hex) => {
-    if (!hex) return 0;
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16) || 0;
-    const g = parseInt(hex.substring(2, 4), 16) || 0;
-    const b = parseInt(hex.substring(4, 6), 16) || 0;
-    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  };
+const getLuminance = (hex) => {
+  hex = hex.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) || 0;
+  const g = parseInt(hex.substring(2, 4), 16) || 0;
+  const b = parseInt(hex.substring(4, 6), 16) || 0;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+};
 
-  const isLightBg = effectiveBg ? getLuminance(effectiveBg) > 0.5 : document.body.classList.contains('light-mode');
+const isLightBg = getLuminance(effectiveBg) > 0.5;
 
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <img src={isLightBg ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
-    </div>
-  );
+return (
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <img src={isLightBg ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
+  </div>
+);
 };
 
 const Page = ({ children, id }) => (

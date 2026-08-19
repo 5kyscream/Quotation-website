@@ -147,6 +147,35 @@ body {
   -webkit-text-fill-color: var(--color-white) !important;
 }
 
+.form-input-light {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-medium);
+  border-radius: 4px;
+  color: var(--color-midnight);
+  font-family: var(--font-body);
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.form-input-light:focus {
+  outline: none;
+  border-color: var(--color-teal);
+}
+
+.form-input-light:-webkit-autofill,
+.form-input-light:-webkit-autofill:hover, 
+.form-input-light:-webkit-autofill:focus, 
+.form-input-light:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-white) inset !important;
+  -webkit-text-fill-color: var(--color-midnight) !important;
+}
+
+.form-input-light::placeholder {
+  color: #888;
+}
+
 /* Layout Utilities */
 .container {
   max-width: 1200px;
@@ -165,7 +194,7 @@ body {
   background-image: linear-gradient(var(--color-orange) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-orange) 1px, transparent 1px);
   background-size: 60px 60px;
-  opacity: 0.05;
+  opacity: 0.15;
   pointer-events: none;
   z-index: 0;
 }

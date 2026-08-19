@@ -4,8 +4,18 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const Logo = ({ isLightMode }) => {
-  const isLight = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
+const Logo = ({ isLightMode, customBgColor }) => {
+  let isLight = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
+  
+  if (customBgColor) {
+    const hex = customBgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) || 0;
+    const g = parseInt(hex.substring(2, 4), 16) || 0;
+    const b = parseInt(hex.substring(4, 6), 16) || 0;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    isLight = luminance > 0.5;
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <img src={isLight ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
@@ -94,7 +104,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
-        <Logo isLightMode={isLightMode} />
+        <Logo isLightMode={isLightMode} customBgColor={formData.theme?.backgroundColor} />
         
         <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>

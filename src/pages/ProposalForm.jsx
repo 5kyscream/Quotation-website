@@ -116,7 +116,16 @@ const ProposalForm = () => {
     contactPhone: '92609 82066',
     contactEmail: 'contact@vykonindustechnologies.com',
     contactAddress: 'Lucknow, Uttar Pradesh, India (Pan India operations)',
-    contactWebsite: 'https://vykonindus.com/#hero'
+    contactWebsite: 'https://vykonindus.com/#hero',
+    
+    // Theme
+    theme: {
+      primaryColor: '',
+      secondaryColor: '',
+      backgroundColor: '',
+      cardColor: '',
+      textColor: ''
+    }
   });
 
   useEffect(() => {
@@ -134,6 +143,18 @@ const ProposalForm = () => {
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleThemeChange = (e) => {
+    const { name, value } = e.target;
+    const key = name.split('.')[1];
+    setFormData(prev => ({
+      ...prev,
+      theme: {
+        ...(prev.theme || {}),
+        [key]: value
+      }
     }));
   };
 
@@ -487,8 +508,54 @@ const ProposalForm = () => {
 
       {/* RIGHT COLUMN: LIVE PREVIEW */}
       <div className="wizard-right">
+        {/* Sticky Theme Panel */}
+        <div style={{ 
+          width: '100%', 
+          backgroundColor: 'var(--color-navy)', 
+          padding: '12px 24px', 
+          borderRadius: '8px', 
+          border: '1px solid var(--color-border-light)', 
+          marginBottom: '32px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '16px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100
+        }}>
+           <div style={{ color: 'var(--color-white)', fontSize: '14px', fontWeight: 'bold' }}>Preview Theme</div>
+           
+           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Primary</label>
+               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Secondary</label>
+               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Background</label>
+               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Tiles</label>
+               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Text</label>
+               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} style={{ width: '28px', height: '28px', padding: 0, border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: 'transparent' }} />
+             </div>
+             <div style={{ display: 'flex', alignItems: 'center' }}>
+               <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer' }}>Reset</button>
+             </div>
+           </div>
+        </div>
+
         <div className="live-preview-wrapper" style={{ zoom: 0.7 }}>
-          <ProposalDocument formData={formData} activeStep={step} />
+          <ProposalDocument formData={formData} activeStep={step} isLightMode={isLightMode} />
         </div>
       </div>
     </div>

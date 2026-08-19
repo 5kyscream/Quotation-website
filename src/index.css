@@ -388,8 +388,9 @@ body.light-mode .bg-grid::before {
   overflow-x: hidden;
   padding: 40px;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .wizard-right::-webkit-scrollbar {

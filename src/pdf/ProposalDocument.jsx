@@ -4,11 +4,14 @@ import { brandConfig } from '../config/brand';
 import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknote, PenTool, ClipboardList, ZapIcon, Cpu, Mail, MapPin, Globe, Phone } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const Logo = () => (
-  <div style={{ display: 'flex', alignItems: 'center' }}>
-    <img src="/logo.png" alt="Vykon Proposal Studio" style={{ height: '80px' }} />
-  </div>
-);
+const Logo = ({ isLightMode }) => {
+  const isLight = isLightMode !== undefined ? isLightMode : document.body.classList.contains('light-mode');
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <img src={isLight ? "/logo-dark.png" : "/logo.png"} alt="Vykon Proposal Studio" style={{ height: '80px' }} />
+    </div>
+  );
+};
 
 const Page = ({ children, id }) => (
   <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
@@ -25,7 +28,7 @@ const SectionHeader = ({ title, highlight }) => (
   </div>
 );
 
-const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }, ref) => {
+const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', isLightMode }, ref) => {
   const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
 
@@ -75,15 +78,23 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column' }
     return { year: `20${25 + i}`, value: Math.round(cumulative / 100000) };
   });
 
+  const themeStyles = {
+    ...(formData.theme?.primaryColor ? { '--color-orange': formData.theme.primaryColor } : {}),
+    ...(formData.theme?.secondaryColor ? { '--color-teal': formData.theme.secondaryColor } : {}),
+    ...(formData.theme?.backgroundColor ? { '--color-midnight': formData.theme.backgroundColor } : {}),
+    ...(formData.theme?.cardColor ? { '--color-navy': formData.theme.cardColor } : {}),
+    ...(formData.theme?.textColor ? { '--color-white': formData.theme.textColor } : {}),
+  };
+
   return (
-    <div ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0' }}>
+    <div ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0', ...themeStyles }}>
       
       {/* PAGE 1: COVER (Step 1) */}
       <Page id="page-1">
         <div className="bg-grid"></div>
         <div className="bg-ghost-initials">VS</div>
         <div className="bg-diagonal-teal"></div>
-        <Logo />
+        <Logo isLightMode={isLightMode} />
         
         <div style={{ marginTop: '160px', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'inline-block', padding: '6px 12px', border: '1.5px solid var(--color-teal)', color: 'var(--color-teal)', backgroundColor: 'rgba(0,194,168,0.06)', borderRadius: '4px', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '24px' }}>

@@ -5,14 +5,8 @@ import { Zap, Check, ArrowRight, Sun, Calendar, Settings, Shield, Clock, Banknot
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Logo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-    <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--color-orange)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-      <Zap size={24} />
-    </div>
-    <div>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '24px', color: 'white', lineHeight: 1 }}>VYKON</div>
-      <div style={{ fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '10px', color: 'var(--color-orange)', letterSpacing: '2px', marginTop: '2px' }}>PROPOSAL STUDIO</div>
-    </div>
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <img src="/logo.png" alt="Vykon Proposal Studio" style={{ height: '80px' }} />
   </div>
 );
 

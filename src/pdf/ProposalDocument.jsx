@@ -108,7 +108,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           
           <div style={{ marginTop: '60px', borderLeft: '4px solid var(--color-orange)', paddingLeft: '24px' }}>
             <p style={{ fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-muted-blue)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '12px', marginBottom: '8px' }}>PREPARED FOR: {formData.customerType}</p>
-            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
+            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>Attn: {formData.contactPerson}</p>
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px' }}>{formData.date}</p>
           </div>
@@ -298,17 +298,17 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'center', width: '30%' }}>
               <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentAdvance}%</div>
-              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>Advance with work order</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>Advance with work order</div>
             </div>
             <ArrowRight size={24} color="var(--color-muted-blue)" />
             <div style={{ textAlign: 'center', width: '30%' }}>
               <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentStructure}%</div>
-              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>After structure & CEIG</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>After structure & CEIG</div>
             </div>
             <ArrowRight size={24} color="var(--color-muted-blue)" />
             <div style={{ textAlign: 'center', width: '30%' }}>
               <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentReceipt}%</div>
-              <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>After receipt of material</div>
+              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>After receipt of material</div>
             </div>
           </div>
         </div>
@@ -321,17 +321,17 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
             <ZapIcon size={20} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.firstYearSavings)}</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>1st Year Savings</div>
           </div>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
             <Banknote size={20} color="var(--color-orange)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.lifetimeSavings)}</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Lifetime Savings (25 Yrs)</div>
           </div>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
             <Calendar size={20} color="var(--color-teal)" style={{ margin: '0 auto 8px' }} />
-            <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
+            <div style={{ fontSize: '24px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{fin.paybackYears}Y {fin.paybackRemainingMonths}M</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Payback Period</div>
           </div>
         </div>
@@ -396,12 +396,12 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Banknote size={24} color="var(--color-teal)" style={{ margin: '0 auto 12px' }} />
-              <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.loanAmount)}</div>
+              <div style={{ fontSize: '24px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formatCurrency(fin.loanAmount)}</div>
               <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Eligible Loan Amount</div>
             </div>
             <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
               <Calendar size={24} color="var(--color-orange)" style={{ margin: '0 auto 12px' }} />
-              <div style={{ fontSize: '24px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.tenureYears} Years</div>
+              <div style={{ fontSize: '24px', color: 'var(--color-white)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{formData.tenureYears} Years</div>
               <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginTop: '8px', textTransform: 'uppercase' }}>Tenure</div>
             </div>
             <div className="vykon-card" style={{ textAlign: 'center', padding: '24px 16px' }}>
@@ -607,7 +607,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         </div>
 
         <div style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ width: '40%', backgroundColor: 'var(--color-orange)', padding: '24px', color: 'white' }}>
+          <div style={{ width: '40%', backgroundColor: 'var(--color-orange)', padding: '24px', color: 'var(--color-white)' }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>Contact Information</h3>
             <p style={{ fontSize: '10px', marginBottom: '24px' }}>We'd love to hear from you!</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>

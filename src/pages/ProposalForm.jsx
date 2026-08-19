@@ -5,6 +5,78 @@ import { getNextProposalNumber } from '../utils/storage';
 import ProposalDocument from '../pdf/ProposalDocument';
 import SiteAddressInput from '../components/SiteAddressInput';
 
+const PRESET_COLORS = ['#FFFFFF', '#F5F0E8', '#000000', '#1A1A2E', '#0A1B3D', '#F4621F', '#00C2A8', '#D4C5A0'];
+
+const CustomColorPicker = ({ value, onChange, name, title }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const popoverRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handlePresetClick = (color) => {
+    onChange({ target: { name, value: color } });
+    setIsOpen(false);
+  };
+
+  return (
+    <div style={{ position: 'relative' }} ref={popoverRef}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          width: '22px', height: '22px', borderRadius: '50%', 
+          backgroundColor: value || '#ffffff', 
+          border: '2px solid var(--color-border-medium)',
+          cursor: 'pointer',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }}
+        title={title}
+      />
+      {isOpen && (
+        <div style={{ 
+          position: 'absolute', top: '30px', right: 0, 
+          backgroundColor: 'var(--color-navy)', 
+          border: '1px solid var(--color-teal)',
+          borderRadius: '8px', padding: '16px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+          zIndex: 1000,
+          width: '180px'
+        }}>
+          <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Standard Palette</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '20px' }}>
+            {PRESET_COLORS.map(color => (
+              <div 
+                key={color} 
+                onClick={() => handlePresetClick(color)}
+                style={{ width: '28px', height: '28px', borderRadius: '4px', backgroundColor: color, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)' }}
+                title={color}
+              />
+            ))}
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Custom Hex</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--color-bg-hover)', padding: '6px 8px', borderRadius: '4px' }}>
+            <input 
+              type="color" 
+              name={name}
+              value={value || '#ffffff'}
+              onChange={onChange}
+              style={{ width: '24px', height: '24px', cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+            />
+            <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-white)' }}>{value || '#ffffff'}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const defaultScope = [
   { id: 1, name: "Safe Access to Roof", epc: false, cust: true },
   { id: 2, name: "Transit Insurance", epc: true, cust: false },
@@ -212,7 +284,7 @@ const ProposalForm = () => {
               <div className="form-group">
                 <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Customer Type *</span>
-                  <input type="color" name="fieldColors.customerType" value={formData.fieldColors?.customerType || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                  <CustomColorPicker name="fieldColors.customerType" value={formData.fieldColors?.customerType || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                 </label>
                 <select name="customerType" value={formData.customerType} onChange={handleChange} className="form-input">
                   <option value="Commercial">Commercial</option>
@@ -224,21 +296,21 @@ const ProposalForm = () => {
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Client Name / Company *</span>
-                    <input type="color" name="fieldColors.companyName" value={formData.fieldColors?.companyName || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.companyName" value={formData.fieldColors?.companyName || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Contact Person Name *</span>
-                    <input type="color" name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Project size (kWp) *</span>
-                    <input type="color" name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
@@ -304,21 +376,21 @@ const ProposalForm = () => {
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Project Capacity (kWp) *</span>
-                    <input type="color" name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Electricity Tariff (₹ per kWh) *</span>
-                    <input type="color" name="fieldColors.tariffRate" value={formData.fieldColors?.tariffRate || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.tariffRate" value={formData.fieldColors?.tariffRate || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="number" step="0.01" name="tariffRate" value={formData.tariffRate} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Cost per Wp (₹, excl. GST) *</span>
-                    <input type="color" name="fieldColors.costPerWp" value={formData.fieldColors?.costPerWp || '#ffffff'} onChange={handleFieldColorChange} className="color-picker-input" style={{ width: '16px', height: '16px' }} title="Text Color" />
+                    <CustomColorPicker name="fieldColors.costPerWp" value={formData.fieldColors?.costPerWp || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
                   </label>
                   <input required type="number" step="0.01" name="costPerWp" value={formData.costPerWp} onChange={handleChange} className="form-input" />
                 </div>
@@ -547,24 +619,24 @@ const ProposalForm = () => {
            <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Theme</div>
            
            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} className="color-picker-input" title="Primary" />
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+               <CustomColorPicker name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} title="Primary" />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Pri</span>
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} className="color-picker-input" title="Secondary" />
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+               <CustomColorPicker name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} title="Secondary" />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Sec</span>
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} className="color-picker-input" title="Background" />
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+               <CustomColorPicker name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} title="Background" />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Bg</span>
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} className="color-picker-input" title="Tiles" />
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+               <CustomColorPicker name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} title="Tiles" />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Tile</span>
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} className="color-picker-input" title="Text" />
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+               <CustomColorPicker name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} title="Text" />
                <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Text</span>
              </div>
              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '8px' }}>

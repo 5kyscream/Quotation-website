@@ -527,48 +527,48 @@ const ProposalForm = () => {
 
       {/* RIGHT COLUMN: LIVE PREVIEW */}
       <div className="wizard-right">
-        {/* Sticky Theme Panel */}
+        {/* Floating Theme Panel */}
         <div style={{ 
-          width: '100%', 
+          position: 'fixed',
+          right: '24px',
+          top: '50%',
+          transform: 'translateY(-50%)',
           backgroundColor: 'var(--color-navy)', 
-          padding: '12px 24px', 
-          borderRadius: '8px', 
+          padding: '24px 12px', 
+          borderRadius: '16px', 
           border: '1px solid var(--color-border-light)', 
-          marginBottom: '32px',
           display: 'flex',
-          flexWrap: 'wrap',
-          gap: '16px',
+          flexDirection: 'column',
+          gap: '24px',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100
+          zIndex: 100,
+          boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
         }}>
-           <div style={{ color: 'var(--color-white)', fontSize: '14px', fontWeight: 'bold' }}>Preview Theme</div>
+           <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Theme</div>
            
-           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Primary</label>
-               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} className="color-picker-input" />
+               <input type="color" name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} className="color-picker-input" title="Primary" />
+               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Pri</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Secondary</label>
-               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} className="color-picker-input" />
+               <input type="color" name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} className="color-picker-input" title="Secondary" />
+               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Sec</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Background</label>
-               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} className="color-picker-input" />
+               <input type="color" name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} className="color-picker-input" title="Background" />
+               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Bg</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Tiles</label>
-               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} className="color-picker-input" />
+               <input type="color" name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} className="color-picker-input" title="Tiles" />
+               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Tile</span>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-               <label style={{ fontSize: '10px', color: 'var(--color-muted-blue)' }}>Text</label>
-               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} className="color-picker-input" />
+               <input type="color" name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} className="color-picker-input" title="Text" />
+               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Text</span>
              </div>
-             <div style={{ display: 'flex', alignItems: 'center' }}>
-               <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer' }}>Reset</button>
+             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '8px' }}>
+               <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '6px 8px', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', textTransform: 'uppercase' }}>Reset</button>
              </div>
            </div>
         </div>

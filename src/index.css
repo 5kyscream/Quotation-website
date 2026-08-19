@@ -462,12 +462,12 @@ body.light-mode .bg-grid::before {
   padding: 0;
 }
 .color-picker-input::-webkit-color-swatch {
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border: 1px solid var(--color-border-medium);
 }
 .color-picker-input::-moz-color-swatch {
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border: 1px solid var(--color-border-medium);
 }
 
 /* Custom Theme Switch Toggle */

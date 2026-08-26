@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Plus, Trash2, Sun, Moon } from 'lucide-react';
-import { getNextProposalNumber } from '../utils/storage';
+import { getNextProposalNumber, getSavedImages, saveImageToLibrary } from '../utils/storage';
 import ProposalDocument from '../pdf/ProposalDocument';
 import SiteAddressInput from '../components/SiteAddressInput';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../utils/cropImage';
 
 const PRESET_COLORS = ['#FFFFFF', '#F5F0E8', '#000000', '#1A1A2E', '#0A1B3D', '#F4621F', '#00C2A8', '#D4C5A0'];
 const BG_PRESET_COLORS = ['#FFFFFF', '#F5F0E8', '#EAEAEA', '#000000', '#1A1A2E', '#0A1B3D', '#121212', '#222222'];
@@ -117,6 +119,15 @@ const defaultTerms = [
   { id: 8, title: "Liaison", text: "Net metering application, CEIG approvals, and other regulatory liaison are not included in the scope unless explicitly stated. These can be provided as an add-on service." }
 ];
 
+const DEFAULT_COVER_IMAGES = [
+  'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1592833159057-6fc1253018e4?q=80&w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1497435334941-8c899ee9e9e9?q=80&w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1611365892597-0996cb8bf2e7?q=80&w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1559302504-64aae6ca6b6f?q=80&w=600&auto=format&fit=crop'
+];
+
 const ProposalForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -125,6 +136,14 @@ const ProposalForm = () => {
   const [editProposalNo, setEditProposalNo] = useState(false);
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light-mode'));
   
+  // Image Cropper & Library State
+  const [savedImages, setSavedImages] = useState({ covers: [], watermarks: [] });
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
   const [formData, setFormData] = useState(editData || {
     // Step 1: Cover
     customerType: 'Commercial',
@@ -134,6 +153,8 @@ const ProposalForm = () => {
     date: new Date().toISOString().split('T')[0],
     proposalNumber: '',
     coverImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2000&auto=format&fit=crop',
+    coverImageOpacity: 100,
+    watermarkImage: null,
 
     // Step 2: Customer
     consumerNumber: '',
@@ -203,6 +224,54 @@ const ProposalForm = () => {
     // Field-specific colors
     fieldColors: {}
   });
+
+  useEffect(() => {
+    setSavedImages(getSavedImages());
+  }, []);
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageToCrop(reader.result);
+        setShowCropModal(true);
+      });
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleWatermarkUpload = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        const base64 = reader.result;
+        saveImageToLibrary('watermark', base64);
+        setSavedImages(getSavedImages());
+        setFormData(prev => ({ ...prev, watermarkImage: base64 }));
+      });
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleCropSave = async () => {
+    try {
+      const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      if (croppedImage) {
+        saveImageToLibrary('cover', croppedImage);
+        setSavedImages(getSavedImages());
+        setFormData(prev => ({ ...prev, coverImage: croppedImage }));
+        setShowCropModal(false);
+        setImageToCrop(null);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to crop image.");
+    }
+  };
 
   useEffect(() => {
     if (!editData) {
@@ -327,6 +396,56 @@ const ProposalForm = () => {
                     </span>
                   </label>
                   <input type="text" name="proposalNumber" value={formData.proposalNumber} onChange={handleChange} className="form-input" disabled={!editProposalNo} style={{ opacity: editProposalNo ? 1 : 0.6 }} />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ marginTop: '24px' }}>
+                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Cover background</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>Opacity: {formData.coverImageOpacity || 100}%</span>
+                    <input 
+                      type="range" 
+                      min="10" max="100" 
+                      name="coverImageOpacity" 
+                      value={formData.coverImageOpacity || 100} 
+                      onChange={handleChange} 
+                      style={{ width: '80px', accentColor: 'var(--color-teal)' }} 
+                    />
+                  </div>
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  {DEFAULT_COVER_IMAGES.map((img, i) => (
+                    <div 
+                      key={`def-${i}`}
+                      onClick={() => setFormData(prev => ({...prev, coverImage: img}))}
+                      style={{ 
+                        width: '80px', height: '80px', borderRadius: '8px', 
+                        backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center',
+                        cursor: 'pointer', border: formData.coverImage === img ? '3px solid var(--color-teal)' : '2px solid transparent'
+                      }}
+                    />
+                  ))}
+                  {savedImages.covers.map((img, i) => (
+                    <div 
+                      key={`saved-${i}`}
+                      onClick={() => setFormData(prev => ({...prev, coverImage: img}))}
+                      style={{ 
+                        width: '80px', height: '80px', borderRadius: '8px', 
+                        backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center',
+                        cursor: 'pointer', border: formData.coverImage === img ? '3px solid var(--color-teal)' : '2px solid transparent'
+                      }}
+                    />
+                  ))}
+                  <label style={{ 
+                    width: '80px', height: '80px', borderRadius: '8px', border: '2px dashed var(--color-border-medium)', 
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                    color: 'var(--color-muted-blue)', fontSize: '10px'
+                  }}>
+                    <Plus size={20} style={{ marginBottom: '4px' }} />
+                    Upload
+                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                  </label>
                 </div>
               </div>
             </div>
@@ -600,56 +719,134 @@ const ProposalForm = () => {
 
       {/* RIGHT COLUMN: LIVE PREVIEW */}
       <div className="wizard-right">
-        {/* Floating Theme Panel */}
+        {/* Floating Tool Panel */}
         <div style={{ 
           position: 'fixed',
           right: '24px',
           top: '50%',
           transform: 'translateY(-50%)',
-          backgroundColor: 'var(--color-navy)', 
-          padding: '24px 12px', 
-          borderRadius: '16px', 
-          border: '1px solid var(--color-border-light)', 
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
-          alignItems: 'center',
-          zIndex: 100,
-          boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
+          gap: '16px',
+          zIndex: 100
         }}>
-           <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Theme</div>
-           
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} title="Primary" />
-               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Pri</span>
+          {/* Theme Panel */}
+          <div style={{ 
+            backgroundColor: 'var(--color-navy)', 
+            padding: '24px 12px', 
+            borderRadius: '16px', 
+            border: '1px solid var(--color-border-light)', 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            alignItems: 'center',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
+          }}>
+             <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Theme</div>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                 <CustomColorPicker name="theme.primaryColor" value={formData.theme?.primaryColor || '#ff6b35'} onChange={handleThemeChange} title="Primary" />
+                 <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Pri</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                 <CustomColorPicker name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} title="Secondary" />
+                 <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Sec</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                 <CustomColorPicker name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} title="Background" presets={BG_PRESET_COLORS} />
+                 <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Bg</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                 <CustomColorPicker name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} title="Tiles" />
+                 <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Tile</span>
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                 <CustomColorPicker name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} title="Text" />
+                 <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Text</span>
+               </div>
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '8px' }}>
+                 <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '6px 8px', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', textTransform: 'uppercase' }}>Reset</button>
+               </div>
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.secondaryColor" value={formData.theme?.secondaryColor || '#00c2a8'} onChange={handleThemeChange} title="Secondary" />
-               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Sec</span>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.backgroundColor" value={formData.theme?.backgroundColor || (isLightMode ? '#f5f0e8' : '#0b0c10')} onChange={handleThemeChange} title="Background" presets={BG_PRESET_COLORS} />
-               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Bg</span>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.cardColor" value={formData.theme?.cardColor || (isLightMode ? '#ffffff' : '#1f2833')} onChange={handleThemeChange} title="Tiles" />
-               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Tile</span>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-               <CustomColorPicker name="theme.textColor" value={formData.theme?.textColor || (isLightMode ? '#1a1a1a' : '#ffffff')} onChange={handleThemeChange} title="Text" />
-               <span style={{ fontSize: '9px', color: 'var(--color-muted-blue)' }}>Text</span>
-             </div>
-             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '8px' }}>
-               <button type="button" onClick={() => setFormData(prev => ({...prev, theme: { primaryColor: '', secondaryColor: '', backgroundColor: '', cardColor: '', textColor: '' }}))} style={{ background: 'none', border: '1px solid var(--color-border-medium)', color: 'var(--color-muted-blue)', padding: '6px 8px', borderRadius: '4px', fontSize: '9px', cursor: 'pointer', textTransform: 'uppercase' }}>Reset</button>
-             </div>
-           </div>
+          </div>
+          
+          {/* Watermark Panel */}
+          <div style={{ 
+            backgroundColor: 'var(--color-navy)', 
+            padding: '16px 12px', 
+            borderRadius: '16px', 
+            border: '1px solid var(--color-border-light)', 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            alignItems: 'center',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
+          }}>
+             <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Watermark</div>
+             {formData.watermarkImage ? (
+               <div style={{ position: 'relative', width: '40px', height: '40px' }}>
+                 <img src={formData.watermarkImage} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                 <div onClick={() => setFormData(prev => ({...prev, watermarkImage: null}))} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', cursor: 'pointer', padding: '2px' }}><Trash2 size={12} /></div>
+               </div>
+             ) : (
+               <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px dashed var(--color-border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-muted-blue)' }}>
+                   <Plus size={16} />
+                 </div>
+                 <input type="file" accept="image/*" onChange={handleWatermarkUpload} style={{ display: 'none' }} />
+               </label>
+             )}
+             
+             {savedImages.watermarks.length > 0 && !formData.watermarkImage && (
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '120px', overflowY: 'auto' }}>
+                 {savedImages.watermarks.map((img, i) => (
+                   <img key={i} src={img} onClick={() => setFormData(prev => ({...prev, watermarkImage: img}))} style={{ width: '32px', height: '32px', objectFit: 'contain', cursor: 'pointer', border: '1px solid var(--color-border-medium)', borderRadius: '4px' }} />
+                 ))}
+               </div>
+             )}
+          </div>
         </div>
 
         <div className="live-preview-wrapper" style={{ zoom: 0.7 }}>
           <ProposalDocument formData={formData} activeStep={step} isLightMode={isLightMode} />
         </div>
       </div>
+
+      {/* Cropper Modal */}
+      {showCropModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Cropper
+              image={imageToCrop}
+              crop={crop}
+              zoom={zoom}
+              aspect={1 / 1.414} // A4 Aspect Ratio roughly
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+            />
+            {/* Translucent Overlay for text */}
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '30%', height: '42.4%', pointerEvents: 'none', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px', zIndex: 10 }}>
+              <div style={{ padding: '20px', backgroundColor: 'rgba(0,0,0,0.4)', borderLeft: '4px solid var(--color-orange, #ff6b35)', backdropFilter: 'blur(2px)' }}>
+                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>PREPARED FOR: {formData.customerType}</p>
+                <p style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', fontFamily: 'var(--font-display, sans-serif)' }}>{formData.companyName || 'Company Name'}</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>Attn: {formData.contactPerson || 'Contact Person'}</p>
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: '24px', backgroundColor: '#111', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <span style={{ color: 'white', marginRight: '16px' }}>Zoom</span>
+              <input type="range" min={1} max={3} step={0.1} value={zoom} onChange={(e) => setZoom(e.target.value)} />
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button className="btn-secondary" onClick={() => { setShowCropModal(false); setImageToCrop(null); }}>Cancel</button>
+              <button className="btn-primary" onClick={handleCropSave}>Save & Apply Cover</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

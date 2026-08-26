@@ -126,3 +126,34 @@ const deleteLocalProposal = (id) => {
   const filtered = proposals.filter(p => p.id !== id);
   localStorage.setItem(PROPOSALS_KEY, JSON.stringify(filtered));
 };
+
+// --- Image Library Storage ---
+
+const IMAGES_KEY = 'vykon_saved_images';
+
+export const getSavedImages = () => {
+  try {
+    const data = localStorage.getItem(IMAGES_KEY);
+    return data ? JSON.parse(data) : { covers: [], watermarks: [] };
+  } catch (e) {
+    console.error("Error reading saved images", e);
+    return { covers: [], watermarks: [] };
+  }
+};
+
+export const saveImageToLibrary = (type, base64Data) => {
+  try {
+    const images = getSavedImages();
+    if (type === 'cover') {
+      images.covers.push(base64Data);
+    } else if (type === 'watermark') {
+      images.watermarks.push(base64Data);
+    }
+    localStorage.setItem(IMAGES_KEY, JSON.stringify(images));
+    return true;
+  } catch (e) {
+    console.error("Error saving image to library. LocalStorage might be full.", e);
+    alert("Failed to save image. Local storage might be full.");
+    return false;
+  }
+};

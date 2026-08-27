@@ -403,7 +403,7 @@ const ProposalForm = () => {
               
               <div className="form-group" style={{ marginTop: '24px' }}>
                 <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Cover background</span>
+                  <span>Cover background <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', fontWeight: 'normal', marginLeft: '8px', textTransform: 'none' }}>(Optimal: 1200x1700px)</span></span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>Opacity: {formData.coverImageOpacity || 100}%</span>
                     <input 
@@ -792,10 +792,11 @@ const ProposalForm = () => {
                  <div onClick={() => setFormData(prev => ({...prev, backgroundImage: null}))} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', cursor: 'pointer', padding: '2px' }}><Trash2 size={12} /></div>
                </div>
              ) : (
-               <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+               <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', gap: '4px' }}>
                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px dashed var(--color-border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-muted-blue)' }}>
                    <Plus size={16} />
                  </div>
+                 <span style={{ fontSize: '8px', color: 'var(--color-muted-blue)', textAlign: 'center' }}>A4 Size</span>
                  <input type="file" accept="image/*" onChange={handleBackgroundUpload} style={{ display: 'none' }} />
                </label>
              )}

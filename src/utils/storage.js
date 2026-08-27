@@ -147,7 +147,7 @@ export const getSavedImages = async () => {
   if (supabase) {
     try {
       const covers = [];
-      const watermarks = [];
+      const backgrounds = [];
       
       // Fetch Covers
       const { data: coverFiles } = await supabase.storage.from('public-images').list('covers');
@@ -160,18 +160,18 @@ export const getSavedImages = async () => {
         });
       }
 
-      // Fetch Watermarks
-      const { data: watermarkFiles } = await supabase.storage.from('public-images').list('watermarks');
-      if (watermarkFiles) {
-        watermarkFiles.forEach(file => {
+      // Fetch Backgrounds
+      const { data: backgroundFiles } = await supabase.storage.from('public-images').list('backgrounds');
+      if (backgroundFiles) {
+        backgroundFiles.forEach(file => {
           if (file.name !== '.emptyFolderPlaceholder') {
-            const { data } = supabase.storage.from('public-images').getPublicUrl(`watermarks/${file.name}`);
-            watermarks.push(data.publicUrl);
+            const { data } = supabase.storage.from('public-images').getPublicUrl(`backgrounds/${file.name}`);
+            backgrounds.push(data.publicUrl);
           }
         });
       }
       
-      return { covers, watermarks };
+      return { covers, backgrounds };
     } catch (e) {
       console.error("Error fetching images from Supabase", e);
     }
@@ -179,10 +179,10 @@ export const getSavedImages = async () => {
 
   try {
     const data = localStorage.getItem(IMAGES_KEY);
-    return data ? JSON.parse(data) : { covers: [], watermarks: [] };
+    return data ? JSON.parse(data) : { covers: [], backgrounds: [] };
   } catch (e) {
     console.error("Error reading saved images", e);
-    return { covers: [], watermarks: [] };
+    return { covers: [], backgrounds: [] };
   }
 };
 
@@ -209,11 +209,11 @@ export const saveImageToLibrary = async (type, base64Data) => {
 
   try {
     const data = localStorage.getItem(IMAGES_KEY);
-    const images = data ? JSON.parse(data) : { covers: [], watermarks: [] };
+    const images = data ? JSON.parse(data) : { covers: [], backgrounds: [] };
     if (type === 'cover') {
       images.covers.push(base64Data);
-    } else if (type === 'watermark') {
-      images.watermarks.push(base64Data);
+    } else if (type === 'background') {
+      images.backgrounds.push(base64Data);
     }
     localStorage.setItem(IMAGES_KEY, JSON.stringify(images));
     return true;

@@ -133,7 +133,7 @@ const ProposalForm = () => {
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light-mode'));
   
   // Image Cropper & Library State
-  const [savedImages, setSavedImages] = useState({ covers: [], watermarks: [] });
+  const [savedImages, setSavedImages] = useState({ covers: [], backgrounds: [] });
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -150,7 +150,7 @@ const ProposalForm = () => {
     proposalNumber: '',
     coverImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2000&auto=format&fit=crop',
     coverImageOpacity: 100,
-    watermarkImage: null,
+    backgroundImage: null,
 
     // Step 2: Customer
     consumerNumber: '',
@@ -244,15 +244,15 @@ const ProposalForm = () => {
     }
   };
 
-  const handleWatermarkUpload = (e) => {
+  const handleBackgroundUpload = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
       reader.addEventListener('load', async () => {
         const base64 = reader.result;
-        await saveImageToLibrary('watermark', base64);
+        await saveImageToLibrary('background', base64);
         const images = await getSavedImages();
         setSavedImages(images);
-        setFormData(prev => ({ ...prev, watermarkImage: base64 }));
+        setFormData(prev => ({ ...prev, backgroundImage: base64 }));
       });
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -773,7 +773,7 @@ const ProposalForm = () => {
              </div>
           </div>
           
-          {/* Watermark Panel */}
+          {/* Background Panel */}
           <div style={{ 
             backgroundColor: 'var(--color-navy)', 
             padding: '16px 12px', 
@@ -785,25 +785,25 @@ const ProposalForm = () => {
             alignItems: 'center',
             boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
           }}>
-             <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Watermark</div>
-             {formData.watermarkImage ? (
+             <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Background</div>
+             {formData.backgroundImage ? (
                <div style={{ position: 'relative', width: '40px', height: '40px' }}>
-                 <img src={formData.watermarkImage} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                 <div onClick={() => setFormData(prev => ({...prev, watermarkImage: null}))} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', cursor: 'pointer', padding: '2px' }}><Trash2 size={12} /></div>
+                 <img src={formData.backgroundImage} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                 <div onClick={() => setFormData(prev => ({...prev, backgroundImage: null}))} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', cursor: 'pointer', padding: '2px' }}><Trash2 size={12} /></div>
                </div>
              ) : (
                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px dashed var(--color-border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-muted-blue)' }}>
                    <Plus size={16} />
                  </div>
-                 <input type="file" accept="image/*" onChange={handleWatermarkUpload} style={{ display: 'none' }} />
+                 <input type="file" accept="image/*" onChange={handleBackgroundUpload} style={{ display: 'none' }} />
                </label>
              )}
              
-             {savedImages.watermarks.length > 0 && !formData.watermarkImage && (
+             {savedImages.backgrounds.length > 0 && !formData.backgroundImage && (
                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '120px', overflowY: 'auto' }}>
-                 {savedImages.watermarks.map((img, i) => (
-                   <img key={i} src={img} onClick={() => setFormData(prev => ({...prev, watermarkImage: img}))} style={{ width: '32px', height: '32px', objectFit: 'contain', cursor: 'pointer', border: '1px solid var(--color-border-medium)', borderRadius: '4px' }} />
+                 {savedImages.backgrounds.map((img, i) => (
+                   <img key={i} src={img} onClick={() => setFormData(prev => ({...prev, backgroundImage: img}))} style={{ width: '32px', height: '32px', objectFit: 'contain', cursor: 'pointer', border: '1px solid var(--color-border-medium)', borderRadius: '4px' }} />
                  ))}
                </div>
              )}

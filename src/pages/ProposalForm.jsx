@@ -121,11 +121,7 @@ const defaultTerms = [
 
 const DEFAULT_COVER_IMAGES = [
   'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1592833159057-6fc1253018e4?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1497435334941-8c899ee9e9e9?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1613665813446-82a78c468a1d?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1611365892597-0996cb8bf2e7?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1559302504-64aae6ca6b6f?q=80&w=600&auto=format&fit=crop'
+  'https://images.unsplash.com/photo-1592833159057-6fc1253018e4?q=80&w=600&auto=format&fit=crop'
 ];
 
 const ProposalForm = () => {
@@ -226,7 +222,11 @@ const ProposalForm = () => {
   });
 
   useEffect(() => {
-    setSavedImages(getSavedImages());
+    const fetchImages = async () => {
+      const images = await getSavedImages();
+      setSavedImages(images);
+    };
+    fetchImages();
   }, []);
 
   const onCropComplete = (croppedArea, croppedAreaPixels) => {
@@ -247,10 +247,11 @@ const ProposalForm = () => {
   const handleWatermarkUpload = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
-      reader.addEventListener('load', () => {
+      reader.addEventListener('load', async () => {
         const base64 = reader.result;
-        saveImageToLibrary('watermark', base64);
-        setSavedImages(getSavedImages());
+        await saveImageToLibrary('watermark', base64);
+        const images = await getSavedImages();
+        setSavedImages(images);
         setFormData(prev => ({ ...prev, watermarkImage: base64 }));
       });
       reader.readAsDataURL(e.target.files[0]);
@@ -261,8 +262,9 @@ const ProposalForm = () => {
     try {
       const croppedImage = await getCroppedImg(imageToCrop, croppedAreaPixels);
       if (croppedImage) {
-        saveImageToLibrary('cover', croppedImage);
-        setSavedImages(getSavedImages());
+        await saveImageToLibrary('cover', croppedImage);
+        const images = await getSavedImages();
+        setSavedImages(images);
         setFormData(prev => ({ ...prev, coverImage: croppedImage }));
         setShowCropModal(false);
         setImageToCrop(null);

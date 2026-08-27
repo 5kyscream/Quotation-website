@@ -131,7 +131,52 @@ const deleteLocalProposal = (id) => {
 
 const IMAGES_KEY = 'vykon_saved_images';
 
-export const getSavedImages = () => {
+const base64ToBlob = (base64) => {
+  const parts = base64.split(';base64,');
+  const contentType = parts[0].split(':')[1];
+  const raw = window.atob(parts[1]);
+  const rawLength = raw.length;
+  const uInt8Array = new Uint8Array(rawLength);
+  for (let i = 0; i < rawLength; ++i) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+  return new Blob([uInt8Array], { type: contentType });
+};
+
+export const getSavedImages = async () => {
+  if (supabase) {
+    try {
+      const covers = [];
+      const watermarks = [];
+      
+      // Fetch Covers
+      const { data: coverFiles } = await supabase.storage.from('public-images').list('covers');
+      if (coverFiles) {
+        coverFiles.forEach(file => {
+          if (file.name !== '.emptyFolderPlaceholder') {
+            const { data } = supabase.storage.from('public-images').getPublicUrl(`covers/${file.name}`);
+            covers.push(data.publicUrl);
+          }
+        });
+      }
+
+      // Fetch Watermarks
+      const { data: watermarkFiles } = await supabase.storage.from('public-images').list('watermarks');
+      if (watermarkFiles) {
+        watermarkFiles.forEach(file => {
+          if (file.name !== '.emptyFolderPlaceholder') {
+            const { data } = supabase.storage.from('public-images').getPublicUrl(`watermarks/${file.name}`);
+            watermarks.push(data.publicUrl);
+          }
+        });
+      }
+      
+      return { covers, watermarks };
+    } catch (e) {
+      console.error("Error fetching images from Supabase", e);
+    }
+  }
+
   try {
     const data = localStorage.getItem(IMAGES_KEY);
     return data ? JSON.parse(data) : { covers: [], watermarks: [] };
@@ -141,9 +186,30 @@ export const getSavedImages = () => {
   }
 };
 
-export const saveImageToLibrary = (type, base64Data) => {
+export const saveImageToLibrary = async (type, base64Data) => {
+  if (supabase) {
+    try {
+      const blob = base64ToBlob(base64Data);
+      const filename = `${type}s/${Date.now()}.png`; // e.g. covers/12345.png
+      
+      const { error } = await supabase.storage
+        .from('public-images')
+        .upload(filename, blob, {
+          contentType: blob.type,
+          upsert: false
+        });
+        
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error("Error uploading image to Supabase", e);
+      // Fallback to local storage logic below
+    }
+  }
+
   try {
-    const images = getSavedImages();
+    const data = localStorage.getItem(IMAGES_KEY);
+    const images = data ? JSON.parse(data) : { covers: [], watermarks: [] };
     if (type === 'cover') {
       images.covers.push(base64Data);
     } else if (type === 'watermark') {

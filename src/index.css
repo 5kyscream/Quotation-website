@@ -400,9 +400,7 @@ body.light-mode .bg-grid::before {
 
 .live-preview-wrapper {
   transform-origin: top center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  border: 1px solid var(--color-border-light);
-  width: 210mm;
+  width: max-content;
   /* Instead of scaling and letting it overflow, let's keep width fixed and scale down */
 }
 

@@ -164,9 +164,21 @@ export const getSavedImages = async () => {
       const { data: backgroundFiles } = await supabase.storage.from('public-images').list('backgrounds');
       if (backgroundFiles) {
         backgroundFiles.forEach(file => {
-          if (file.name !== '.emptyFolderPlaceholder') {
+          if (file.name !== '.emptyFolderPlaceholder' && file.id) {
             const { data } = supabase.storage.from('public-images').getPublicUrl(`backgrounds/${file.name}`);
             backgrounds.push(data.publicUrl);
+          }
+        });
+      }
+
+      // Fetch Root Files
+      const { data: rootFiles } = await supabase.storage.from('public-images').list('');
+      if (rootFiles) {
+        rootFiles.forEach(file => {
+          // files have an id, folders generally don't in Supabase list API
+          if (file.name !== '.emptyFolderPlaceholder' && file.id) {
+            const { data } = supabase.storage.from('public-images').getPublicUrl(`${file.name}`);
+            backgrounds.push(data.publicUrl); // Add root images to backgrounds
           }
         });
       }

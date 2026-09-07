@@ -151,6 +151,7 @@ const ProposalForm = () => {
     coverImage: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2000&auto=format&fit=crop',
     coverImageOpacity: 100,
     backgroundImage: null,
+    pageBackgrounds: {},
 
     // Step 2: Customer
     consumerNumber: '',
@@ -253,6 +254,31 @@ const ProposalForm = () => {
         const images = await getSavedImages();
         setSavedImages(images);
         setFormData(prev => ({ ...prev, backgroundImage: base64 }));
+      });
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handlePageBackgroundChange = (pageId, e) => {
+    if (e === null) {
+      setFormData(prev => ({
+        ...prev,
+        pageBackgrounds: { ...(prev.pageBackgrounds || {}), [pageId]: null }
+      }));
+      return;
+    }
+    
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', async () => {
+        const base64 = reader.result;
+        await saveImageToLibrary('background', base64);
+        const images = await getSavedImages();
+        setSavedImages(images);
+        setFormData(prev => ({
+          ...prev,
+          pageBackgrounds: { ...(prev.pageBackgrounds || {}), [pageId]: base64 }
+        }));
       });
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -714,18 +740,6 @@ const ProposalForm = () => {
             </button>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: 'var(--color-teal)', fontSize: '14px', fontWeight: '600' }}>
-                  <Plus size={16} /> {formData.backgroundImage ? 'Change Background' : 'Add Background Image'}
-                  <input type="file" accept="image/*" onChange={handleBackgroundUpload} style={{ display: 'none' }} />
-                </label>
-                {formData.backgroundImage && (
-                  <button type="button" onClick={() => setFormData(prev => ({...prev, backgroundImage: null}))} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }} title="Remove Background">
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-
               <button type="button" onClick={nextStep} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {step === 10 ? 'Review & Generate' : 'Next Step'} <ChevronRight size={20} />
               </button>
@@ -792,7 +806,7 @@ const ProposalForm = () => {
         </div>
 
         <div className="live-preview-wrapper" style={{ zoom: 0.7 }}>
-          <ProposalDocument formData={formData} activeStep={step} isLightMode={isLightMode} />
+          <ProposalDocument formData={formData} activeStep={step} isLightMode={isLightMode} isEditor={true} onBackgroundChange={handlePageBackgroundChange} />
         </div>
       </div>
 

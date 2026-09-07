@@ -22,19 +22,34 @@ const Logo = ({ effectiveBg }) => {
   );
 };
 
-const Page = ({ children, id, backgroundImage }) => (
-  <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
-    <div className="left-accent-bar" style={{ zIndex: 10 }}></div>
-    {backgroundImage && (
-      <div style={{ 
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
-        backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center',
-        opacity: 0.15, pointerEvents: 'none', zIndex: 0 
-      }} />
-    )}
-    <div style={{ position: 'relative', zIndex: 10, height: '100%' }}>
-      {children}
+const Page = ({ children, id, backgroundImage, isEditor, onBackgroundChange }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+    <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', overflow: 'hidden', flex: 1 }}>
+      <div className="left-accent-bar" style={{ zIndex: 10 }}></div>
+      {backgroundImage && id !== 'page-1' && (
+        <div style={{ 
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center',
+          opacity: 0.15, pointerEvents: 'none', zIndex: 0 
+        }} />
+      )}
+      <div style={{ position: 'relative', zIndex: 10, height: '100%' }}>
+        {children}
+      </div>
     </div>
+    {isEditor && id !== 'page-1' && (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '40px' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: 'var(--color-teal)', fontSize: '12px', fontWeight: 'bold' }}>
+          <Plus size={14} /> Add BG
+          <input type="file" accept="image/*" onChange={(e) => onBackgroundChange(id, e)} style={{ display: 'none' }} />
+        </label>
+        {backgroundImage && (
+          <button onClick={() => onBackgroundChange(id, null)} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: '#ff4444', fontSize: '12px', fontWeight: 'bold', border: 'none' }}>
+            <Trash2 size={14} /> Remove
+          </button>
+        )}
+      </div>
+    )}
   </div>
 );
 
@@ -46,7 +61,7 @@ const SectionHeader = ({ title, highlight, isLightBg }) => (
   </div>
 );
 
-const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', isLightMode }, ref) => {
+const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', isLightMode, isEditor, onBackgroundChange }, ref) => {
   const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
 
@@ -139,7 +154,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       </style>
 
       {/* PAGE 1: COVER (Step 1) */}
-      <Page backgroundImage={formData.backgroundImage} id="page-1">
+      <Page backgroundImage={formData.pageBackgrounds?.['']} id="page-1" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
         {formData.coverImage && (
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0,
@@ -177,7 +192,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       </Page>
 
       {/* PAGE 2: BENEFITS IN NUMBERS & CUSTOMER DETAILS (Step 2) */}
-      <Page backgroundImage={formData.backgroundImage} id="page-2">
+      <Page backgroundImage={formData.pageBackgrounds?.['']} id="page-2" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
         <SectionHeader title="Benefits in" highlight="Numbers" isLightBg={isLightBg} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
           <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
@@ -268,7 +283,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       </Page>
 
       {/* PAGE 3: SYSTEM PRICING (Step 4) */}
-      <Page backgroundImage={formData.backgroundImage} id="page-3">
+      <Page backgroundImage={formData.pageBackgrounds?.['']} id="page-3" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
         <SectionHeader title="System" highlight="Pricing" isLightBg={isLightBg} />
 
         <table className="vykon-table">
@@ -376,7 +391,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       </Page>
 
       {/* PAGE 4: PROJECT OUTCOMES (Step 5) */}
-      <Page backgroundImage={formData.backgroundImage} id="page-4">
+      <Page backgroundImage={formData.pageBackgrounds?.['']} id="page-4" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
         <SectionHeader title="Project" highlight="Outcomes" isLightBg={isLightBg} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
@@ -436,7 +451,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
       {/* PAGE 5: LOAN OPTION (Step 6 - Conditional) */}
       {formData.isLoan && (
-        <Page backgroundImage={formData.backgroundImage} id="page-5">
+        <Page backgroundImage={formData.pageBackgrounds?.['']} id="page-5" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
           <SectionHeader title="Loan" highlight="Option" isLightBg={isLightBg} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
@@ -690,3 +705,5 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 });
 
 export default ProposalDocument;
+
+

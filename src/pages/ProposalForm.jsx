@@ -708,13 +708,28 @@ const ProposalForm = () => {
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--color-border-light)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--color-border-light)' }}>
             <button type="button" onClick={prevStep} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: step === 1 ? 0.3 : 1, pointerEvents: step === 1 ? 'none' : 'auto' }}>
               <ChevronLeft size={20} /> Back
             </button>
-            <button type="button" onClick={nextStep} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {step === 10 ? 'Review & Generate' : 'Next Step'} <ChevronRight size={20} />
-            </button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: 'var(--color-teal)', fontSize: '14px', fontWeight: '600' }}>
+                  <Plus size={16} /> {formData.backgroundImage ? 'Change Background' : 'Add Background Image'}
+                  <input type="file" accept="image/*" onChange={handleBackgroundUpload} style={{ display: 'none' }} />
+                </label>
+                {formData.backgroundImage && (
+                  <button type="button" onClick={() => setFormData(prev => ({...prev, backgroundImage: null}))} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }} title="Remove Background">
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+
+              <button type="button" onClick={nextStep} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {step === 10 ? 'Review & Generate' : 'Next Step'} <ChevronRight size={20} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -773,42 +788,7 @@ const ProposalForm = () => {
              </div>
           </div>
           
-          {/* Background Panel */}
-          <div style={{ 
-            backgroundColor: 'var(--color-navy)', 
-            padding: '16px 12px', 
-            borderRadius: '16px', 
-            border: '1px solid var(--color-border-light)', 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            alignItems: 'center',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.4)'
-          }}>
-             <div style={{ color: 'var(--color-muted-blue)', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Background</div>
-             {formData.backgroundImage ? (
-               <div style={{ position: 'relative', width: '40px', height: '40px' }}>
-                 <img src={formData.backgroundImage} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                 <div onClick={() => setFormData(prev => ({...prev, backgroundImage: null}))} style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', cursor: 'pointer', padding: '2px' }}><Trash2 size={12} /></div>
-               </div>
-             ) : (
-               <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', gap: '4px' }}>
-                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px dashed var(--color-border-medium)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-muted-blue)' }}>
-                   <Plus size={16} />
-                 </div>
-                 <span style={{ fontSize: '8px', color: 'var(--color-muted-blue)', textAlign: 'center' }}>A4 Size</span>
-                 <input type="file" accept="image/*" onChange={handleBackgroundUpload} style={{ display: 'none' }} />
-               </label>
-             )}
-             
-             {savedImages.backgrounds.length > 0 && !formData.backgroundImage && (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '120px', overflowY: 'auto' }}>
-                 {savedImages.backgrounds.map((img, i) => (
-                   <img key={i} src={img} onClick={() => setFormData(prev => ({...prev, backgroundImage: img}))} style={{ width: '32px', height: '32px', objectFit: 'contain', cursor: 'pointer', border: '1px solid var(--color-border-medium)', borderRadius: '4px' }} />
-                 ))}
-               </div>
-             )}
-          </div>
+
         </div>
 
         <div className="live-preview-wrapper" style={{ zoom: 0.7 }}>

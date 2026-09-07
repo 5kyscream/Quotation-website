@@ -148,7 +148,6 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           }}></div>
         )}
         <div className="bg-grid" style={{ zIndex: 1 }}></div>
-        <div className="bg-ghost-initials" style={{ zIndex: 1 }}>VS</div>
         <div className="bg-diagonal-teal" style={{ zIndex: 1 }}></div>
         <div style={{ position: 'relative', zIndex: 10 }}>
           <Logo effectiveBg={effectiveBg} />

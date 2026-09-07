@@ -470,7 +470,9 @@ const ProposalForm = () => {
                       }}
                     />
                   ))}
-                  {savedImages.covers.filter(img => !DEFAULT_COVER_IMAGES.includes(img)).map((img, i) => (
+                  {Array.from(new Set([...savedImages.covers, ...savedImages.backgrounds]))
+                    .filter(img => !DEFAULT_COVER_IMAGES.includes(img))
+                    .map((img, i) => (
                     <div 
                       key={`saved-${i}`}
                       onClick={() => setFormData(prev => ({...prev, coverImage: img}))}
@@ -881,7 +883,9 @@ const ProposalForm = () => {
                 <input type="file" accept="image/*" onChange={(e) => handlePageBackgroundChange(bgModalPageId, e)} style={{ display: 'none' }} />
               </label>
               
-              {savedImages.backgrounds.map((img, i) => (
+              {Array.from(new Set([...savedImages.covers, ...savedImages.backgrounds]))
+                .filter(img => !DEFAULT_COVER_IMAGES.includes(img))
+                .map((img, i) => (
                 <div 
                   key={`modal-bg-${i}`}
                   onClick={() => handlePageBackgroundChange(bgModalPageId, img)}

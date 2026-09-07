@@ -179,6 +179,7 @@ export const getSavedImages = async () => {
           if (file.name !== '.emptyFolderPlaceholder' && file.id) {
             const { data } = supabase.storage.from('public-images').getPublicUrl(`${file.name}`);
             backgrounds.push(data.publicUrl); // Add root images to backgrounds
+            covers.push(data.publicUrl); // Add root images to covers so they appear in the UI
           }
         });
       }

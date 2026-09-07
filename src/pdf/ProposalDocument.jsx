@@ -23,8 +23,8 @@ const Logo = ({ effectiveBg }) => {
 };
 
 const Page = ({ children, id, backgroundImage, isEditor, onBackgroundChange }) => (
-  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-    <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', marginBottom: '24px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', overflow: 'hidden', flex: 1 }}>
+  <div style={{ position: 'relative', marginBottom: '24px' }}>
+    <div id={id} className="pdf-page" style={{ padding: '40px', position: 'relative', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
       <div className="left-accent-bar" style={{ zIndex: 10 }}></div>
       {backgroundImage && id !== 'page-1' && (
         <div style={{ 
@@ -38,13 +38,13 @@ const Page = ({ children, id, backgroundImage, isEditor, onBackgroundChange }) =
       </div>
     </div>
     {isEditor && id !== 'page-1' && (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '40px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: 'var(--color-teal)', fontSize: '12px', fontWeight: 'bold' }}>
+      <div style={{ position: 'absolute', top: '40px', left: 'calc(100% + 16px)', display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 20 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: 'var(--color-teal)', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
           <Plus size={14} /> Add BG
           <input type="file" accept="image/*" onChange={(e) => onBackgroundChange(id, e)} style={{ display: 'none' }} />
         </label>
         {backgroundImage && (
-          <button onClick={() => onBackgroundChange(id, null)} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: '#ff4444', fontSize: '12px', fontWeight: 'bold', border: 'none' }}>
+          <button onClick={() => onBackgroundChange(id, null)} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', backgroundColor: 'var(--color-navy)', padding: '8px 12px', borderRadius: '4px', border: '1px solid var(--color-border-medium)', color: '#ff4444', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
             <Trash2 size={14} /> Remove
           </button>
         )}

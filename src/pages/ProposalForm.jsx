@@ -135,6 +135,7 @@ const ProposalForm = () => {
   // Image Cropper & Library State
   const [savedImages, setSavedImages] = useState({ covers: [], backgrounds: [] });
   const [showCropModal, setShowCropModal] = useState(false);
+  const [bgModalPageId, setBgModalPageId] = useState(null);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -268,7 +269,21 @@ const ProposalForm = () => {
       return;
     }
     
-    if (e.target.files && e.target.files.length > 0) {
+    if (e === 'open-modal') {
+      setBgModalPageId(pageId);
+      return;
+    }
+    
+    if (typeof e === 'string') {
+      setFormData(prev => ({
+        ...prev,
+        pageBackgrounds: { ...(prev.pageBackgrounds || {}), [pageId]: e }
+      }));
+      setBgModalPageId(null);
+      return;
+    }
+
+    if (e.target && e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
       reader.addEventListener('load', async () => {
         const base64 = reader.result;
@@ -279,6 +294,7 @@ const ProposalForm = () => {
           ...prev,
           pageBackgrounds: { ...(prev.pageBackgrounds || {}), [pageId]: base64 }
         }));
+        setBgModalPageId(null);
       });
       reader.readAsDataURL(e.target.files[0]);
     }
@@ -841,6 +857,57 @@ const ProposalForm = () => {
               <button className="btn-secondary" onClick={() => { setShowCropModal(false); setImageToCrop(null); }}>Cancel</button>
               <button className="btn-primary" onClick={handleCropSave}>Save & Apply Cover</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Background Selector Modal */}
+      {bgModalPageId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: 'var(--color-navy)', padding: '24px', borderRadius: '12px', width: '90%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto', border: '1px solid var(--color-border-medium)', boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ margin: 0, color: 'white', fontFamily: 'var(--font-display, sans-serif)', fontSize: '20px' }}>Select Page Background</h3>
+              <button onClick={() => setBgModalPageId(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted-blue)', cursor: 'pointer', fontSize: '24px', lineHeight: 1 }}>&times;</button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '16px' }}>
+              <label style={{ 
+                aspectRatio: '1', borderRadius: '8px', border: '2px dashed var(--color-border-medium)', 
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                color: 'var(--color-muted-blue)', fontSize: '12px', backgroundColor: 'var(--color-bg)'
+              }}>
+                <Plus size={24} style={{ marginBottom: '8px' }} />
+                Upload New
+                <input type="file" accept="image/*" onChange={(e) => handlePageBackgroundChange(bgModalPageId, e)} style={{ display: 'none' }} />
+              </label>
+              
+              {savedImages.backgrounds.map((img, i) => (
+                <div 
+                  key={`modal-bg-${i}`}
+                  onClick={() => handlePageBackgroundChange(bgModalPageId, img)}
+                  style={{ 
+                    aspectRatio: '1', borderRadius: '8px', 
+                    backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center',
+                    cursor: 'pointer', border: formData.pageBackgrounds?.[bgModalPageId] === img ? '3px solid var(--color-teal)' : '2px solid transparent'
+                  }}
+                />
+              ))}
+            </div>
+            
+            {formData.pageBackgrounds?.[bgModalPageId] && (
+              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => {
+                    handlePageBackgroundChange(bgModalPageId, null);
+                    setBgModalPageId(null);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <Trash2 size={16} /> Remove Background
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

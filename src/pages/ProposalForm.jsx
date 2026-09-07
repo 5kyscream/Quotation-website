@@ -454,7 +454,7 @@ const ProposalForm = () => {
                       }}
                     />
                   ))}
-                  {savedImages.covers.map((img, i) => (
+                  {savedImages.covers.filter(img => !DEFAULT_COVER_IMAGES.includes(img)).map((img, i) => (
                     <div 
                       key={`saved-${i}`}
                       onClick={() => setFormData(prev => ({...prev, coverImage: img}))}

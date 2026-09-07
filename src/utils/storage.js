@@ -146,8 +146,8 @@ const base64ToBlob = (base64) => {
 export const getSavedImages = async () => {
   if (supabase) {
     try {
-      const covers = [];
-      const backgrounds = [];
+      const coversMap = new Map();
+      const backgroundsMap = new Map();
       
       // Fetch Covers
       const { data: coverFiles } = await supabase.storage.from('public-images').list('covers');
@@ -155,7 +155,8 @@ export const getSavedImages = async () => {
         coverFiles.forEach(file => {
           if (file.name !== '.emptyFolderPlaceholder') {
             const { data } = supabase.storage.from('public-images').getPublicUrl(`covers/${file.name}`);
-            covers.push(data.publicUrl);
+            const key = file.metadata?.size || file.name;
+            if (!coversMap.has(key)) coversMap.set(key, data.publicUrl);
           }
         });
       }
@@ -166,7 +167,8 @@ export const getSavedImages = async () => {
         backgroundFiles.forEach(file => {
           if (file.name !== '.emptyFolderPlaceholder' && file.id) {
             const { data } = supabase.storage.from('public-images').getPublicUrl(`backgrounds/${file.name}`);
-            backgrounds.push(data.publicUrl);
+            const key = file.metadata?.size || file.name;
+            if (!backgroundsMap.has(key)) backgroundsMap.set(key, data.publicUrl);
           }
         });
       }
@@ -178,13 +180,17 @@ export const getSavedImages = async () => {
           // files have an id, folders generally don't in Supabase list API
           if (file.name !== '.emptyFolderPlaceholder' && file.id) {
             const { data } = supabase.storage.from('public-images').getPublicUrl(`${file.name}`);
-            backgrounds.push(data.publicUrl); // Add root images to backgrounds
-            covers.push(data.publicUrl); // Add root images to covers so they appear in the UI
+            const key = file.metadata?.size || file.name;
+            if (!backgroundsMap.has(key)) backgroundsMap.set(key, data.publicUrl);
+            if (!coversMap.has(key)) coversMap.set(key, data.publicUrl);
           }
         });
       }
       
-      return { covers, backgrounds };
+      return { 
+        covers: Array.from(coversMap.values()), 
+        backgrounds: Array.from(backgroundsMap.values()) 
+      };
     } catch (e) {
       console.error("Error fetching images from Supabase", e);
     }

@@ -109,8 +109,10 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
     value: Math.round(fin.annualGeneration / 12 * (1 + Math.sin(i) * 0.1))
   }));
 
+  const currentYear = new Date().getFullYear();
+
   const gen25YrData = Array.from({ length: 25 }, (_, i) => ({
-    year: `20${25 + i}`,
+    year: `${currentYear + 1 + i}`,
     value: Math.round(fin.annualGeneration * Math.pow(1 - (parseFloat(formData.degradationRate) / 100), i))
   }));
 
@@ -121,7 +123,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
     cumulative += currentGen * currentTariff;
     currentTariff *= 1.03; // 3% escalation default
     currentGen *= (1 - (parseFloat(formData.degradationRate) / 100));
-    return { year: `20${25 + i}`, value: Math.round(cumulative / 100000) };
+    return { year: `${currentYear + 1 + i}`, value: Math.round(cumulative / 100000) };
   });
 
   const themeStyles = {

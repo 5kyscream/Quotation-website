@@ -41,7 +41,7 @@ const Auth = () => {
       } else {
         const { error } = await signUp(email, password);
         if (error) throw error;
-        alert('Account created! You can now log in.');
+        setMessage('Account created! Please check your email to verify your account before logging in.');
         setIsLogin(true);
       }
     } catch (err) {

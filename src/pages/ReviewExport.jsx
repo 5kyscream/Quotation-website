@@ -80,7 +80,7 @@ const ReviewExport = () => {
   };
 
   return (
-    <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ padding: '0 40px', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1 }}>
       
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
@@ -102,17 +102,16 @@ const ReviewExport = () => {
         overflowY: 'hidden',
         display: 'flex', 
         alignItems: 'center', 
-        gap: '40px',
         paddingBottom: '24px',
         width: '100%'
       }}>
-        <div style={{ transform: 'scale(0.25)', transformOrigin: 'left center', display: 'flex', gap: '100px' }}>
+        <div style={{ zoom: 0.25, display: 'flex', gap: '100px' }}>
           <ProposalDocument formData={formData} layout="carousel" />
         </div>
       </div>
 
       {/* Hidden container for PDF Generation (needs to be full size, column layout) */}
-      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+      <div style={{ position: 'absolute', left: '-9999px', top: '-30000px' }}>
         <div ref={pdfContainerRef} style={{ width: '794px' }}>
           <ProposalDocument formData={formData} layout="column" />
         </div>

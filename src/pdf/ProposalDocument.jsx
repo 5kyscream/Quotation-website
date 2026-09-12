@@ -71,11 +71,20 @@ const getImageBrightness = (src, callback) => {
       canvas.height = img.height || 1;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
-      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      
+      // We only want to sample the brightness of the area where the text sits!
+      // The text sits in the lower-left area of the cover page.
+      // Let's sample X: 0 to 60%, Y: 40% to 90%
+      const startX = 0;
+      const startY = Math.floor(canvas.height * 0.4);
+      const sampleWidth = Math.floor(canvas.width * 0.6);
+      const sampleHeight = Math.floor(canvas.height * 0.5);
+      
+      const data = ctx.getImageData(startX, startY, sampleWidth, sampleHeight).data;
       let r, g, b, avg;
       let colorSum = 0;
       let count = 0;
-      for (let x = 0, len = data.length; x < len; x += 4) {
+      for (let x = 0, len = data.length; x < len; x += 16) {
         r = data[x];
         g = data[x + 1];
         b = data[x + 2];
@@ -238,10 +247,10 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               PREPARED FOR: <span style={{ color: formData.fieldColors?.customerType || 'var(--color-white)' }}>{formData.customerType}</span>
             </p>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: formData.fieldColors?.companyName || 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: formData.fieldColors?.attn || 'var(--color-white)', fontSize: '14px', marginTop: '8px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-white)', fontSize: '14px', marginTop: '8px' }}>
               Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'var(--color-white)' }}>{formData.contactPerson}</span>
             </p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-white)', fontSize: '14px' }}>{formData.date}</p>
+            <p style={{ fontFamily: 'var(--font-body)', color: formData.fieldColors?.date || 'var(--color-white)', fontSize: '14px' }}>{formData.date}</p>
           </div>
         </div>
       </Page>

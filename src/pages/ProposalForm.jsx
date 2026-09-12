@@ -446,8 +446,6 @@ const ProposalForm = () => {
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Contact Person Name *</span>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Attn:</span>
-                      <CustomColorPicker name="fieldColors.attn" value={formData.fieldColors?.attn || '#D4C5A0'} onChange={handleFieldColorChange} title="Attn Label Color" />
                       <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginLeft: '4px', textTransform: 'uppercase' }}>Name:</span>
                       <CustomColorPicker name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} title="Name Text Color" />
                     </div>
@@ -462,7 +460,10 @@ const ProposalForm = () => {
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Date</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Date</span>
+                    <CustomColorPicker name="fieldColors.date" value={formData.fieldColors?.date || '#ffffff'} onChange={handleFieldColorChange} title="Date Text Color" />
+                  </label>
                   <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group" style={{ position: 'relative' }}>

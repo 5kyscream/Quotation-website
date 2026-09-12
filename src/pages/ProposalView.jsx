@@ -135,7 +135,7 @@ const ProposalView = () => {
         padding: '0 40px',
         gap: '40px'
       }}>
-        <div style={{ transform: 'scale(0.35)', transformOrigin: 'left center', display: 'flex', gap: '60px' }}>
+        <div style={{ zoom: 0.35, display: 'flex', gap: '60px' }}>
           <ProposalDocument formData={proposal} layout="carousel" />
         </div>
       </div>

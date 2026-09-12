@@ -182,7 +182,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
   };
 
   return (
-    <div id="proposal-document-root" ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout, gap: layout === 'row' ? '40px' : '0', ...themeStyles }}>
+    <div id="proposal-document-root" ref={(el) => { containerRef.current = el; if (typeof ref === 'function') ref(el); else if (ref) ref.current = el; }} style={{ display: 'flex', flexDirection: layout === 'carousel' ? 'row' : layout, gap: layout === 'carousel' || layout === 'row' ? '40px' : '0', ...themeStyles }}>
       <style>
         {`
           #proposal-document-root {

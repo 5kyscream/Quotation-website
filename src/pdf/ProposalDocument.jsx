@@ -60,6 +60,38 @@ const SectionHeader = ({ title, highlight, isLightBg }) => (
   </div>
 );
 
+const getImageBrightness = (src, callback) => {
+  if (!src) return callback(null);
+  const img = new Image();
+  img.crossOrigin = 'Anonymous';
+  img.onload = () => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width || 1;
+      canvas.height = img.height || 1;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let r, g, b, avg;
+      let colorSum = 0;
+      let count = 0;
+      for (let x = 0, len = data.length; x < len; x += 4) {
+        r = data[x];
+        g = data[x + 1];
+        b = data[x + 2];
+        avg = Math.floor((r + g + b) / 3);
+        colorSum += avg;
+        count++;
+      }
+      callback(count > 0 ? colorSum / count : 127);
+    } catch (e) {
+      callback(null);
+    }
+  };
+  img.onerror = () => callback(null);
+  img.src = src;
+};
+
 const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', isLightMode, isEditor, onBackgroundChange }, ref) => {
   const containerRef = useRef(null);
   const fin = calculateFinancials(formData);
@@ -77,6 +109,21 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
   const isLightBg = getLuminance(effectiveBg) > 0.5;
   const isLightCard = getLuminance(effectiveCardBg) > 0.5;
+
+  const [coverBrightness, setCoverBrightness] = React.useState(null);
+
+  useEffect(() => {
+    getImageBrightness(formData.coverImage, (brightness) => {
+      setCoverBrightness(brightness);
+    });
+  }, [formData.coverImage]);
+
+  const coverOpacity = (formData.coverImageOpacity ?? 100) / 100;
+  const effectiveBgBrightness = isLightBg ? 255 : 0;
+  const finalCoverBrightness = coverBrightness !== null 
+    ? (coverBrightness * coverOpacity) + (effectiveBgBrightness * (1 - coverOpacity))
+    : effectiveBgBrightness;
+  const isLightCover = finalCoverBrightness > 130;
 
   // Sync scroll with activeStep
   useEffect(() => {
@@ -146,6 +193,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             --color-border-medium: ${isLightBg ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'};
             --color-bg-hover: ${isLightBg ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'};
             --color-bg-subtle: ${isLightBg ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'};
+          }
+          #page-1 {
+            --color-white: ${formData.theme?.textColor || (isLightCover ? '#1a1a1a' : '#ffffff')};
+            --color-muted-blue: ${isLightCover ? '#667085' : '#8caac8'};
+            --color-earth: ${isLightCover ? '#8a7a5a' : '#d4c5a0'};
+            --color-border-light: ${isLightCover ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'};
+            --color-border-medium: ${isLightCover ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'};
           }
           #proposal-document-root .vykon-card {
             --color-white: ${formData.theme?.textColor || (isLightCard ? '#1a1a1a' : '#ffffff')};

@@ -125,7 +125,7 @@ const ProposalView = () => {
       </div>
 
       {/* CAROUSEL PREVIEW AREA */}
-      <div style={{ 
+      <div className="hide-scrollbar" style={{ 
         flex: 1, 
         backgroundColor: '#111', 
         overflowX: 'auto', 

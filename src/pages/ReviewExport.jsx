@@ -104,7 +104,7 @@ const ReviewExport = () => {
       </div>
 
       {/* The Carousel Container */}
-      <div style={{ 
+      <div className="hide-scrollbar" style={{ 
         flex: 1, 
         overflowX: 'auto', 
         overflowY: 'hidden',

@@ -404,6 +404,15 @@ body.light-mode .bg-grid::before {
   /* Instead of scaling and letting it overflow, let's keep width fixed and scale down */
 }
 
+/* Hide Scrollbar Utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Steps Indicator */
 .step-indicator {
   display: flex;

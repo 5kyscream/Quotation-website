@@ -166,6 +166,16 @@ const ReviewExport = () => {
               <><Download size={20} /> Generate PPTX</>
             )}
           </button>
+
+          {generated && (
+            <button 
+              className="btn-primary" 
+              onClick={() => navigate('/')}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px', backgroundColor: 'var(--color-teal)', color: 'var(--color-navy)', border: 'none' }}
+            >
+              Back to Main Menu
+            </button>
+          )}
         </div>
       </div>
 

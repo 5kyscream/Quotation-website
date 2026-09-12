@@ -210,7 +210,9 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             --color-border-light: ${isLightCover ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'};
             --color-border-medium: ${isLightCover ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'};
           }
-          #proposal-document-root .vykon-card {
+          #proposal-document-root .vykon-card,
+          #proposal-document-root .vykon-table,
+          #proposal-document-root .navy-surface {
             --color-white: ${formData.theme?.textColor || (isLightCard ? '#1a1a1a' : '#ffffff')};
             --color-muted-blue: ${isLightCard ? '#667085' : '#8caac8'};
           }
@@ -518,7 +520,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         <Page backgroundImage={formData.pageBackgrounds?.['page-5']} id="page-5" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
           <SectionHeader title="Loan" highlight="Option" isLightBg={isLightBg} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
+          <div className="navy-surface" style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px', backgroundColor: 'var(--color-navy)', padding: '32px', borderRadius: '8px' }}>
             <div style={{ flex: '0 0 120px', display: 'flex', justifyContent: 'center' }}>
               <Banknote size={80} color="var(--color-teal)" />
             </div>
@@ -746,7 +748,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
+        <div className="navy-surface" style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
           <div style={{ width: '40%', backgroundColor: 'var(--color-orange)', padding: '24px', color: 'var(--color-white)' }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>Contact Information</h3>
             <p style={{ fontSize: '10px', marginBottom: '24px' }}>We'd love to hear from you!</p>

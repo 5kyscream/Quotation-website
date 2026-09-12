@@ -40,6 +40,10 @@ const ReviewExport = () => {
         createdAt: new Date().toISOString()
       });
       
+      // Clear autosave draft on successful creation
+      localStorage.removeItem('vykon_proposal_draft');
+      localStorage.removeItem('vykon_proposal_step');
+      
       setGenerated(true);
     } catch (error) {
       console.error("Failed to generate:", error);
@@ -69,6 +73,10 @@ const ReviewExport = () => {
         id: Date.now().toString(),
         createdAt: new Date().toISOString()
       });
+      
+      // Clear autosave draft on successful creation
+      localStorage.removeItem('vykon_proposal_draft');
+      localStorage.removeItem('vykon_proposal_step');
       
       setGenerated(true);
     } catch (error) {

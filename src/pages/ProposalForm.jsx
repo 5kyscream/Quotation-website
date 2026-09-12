@@ -128,7 +128,11 @@ const ProposalForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editData = location.state?.editData;
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => {
+    if (editData) return 1;
+    const savedStep = localStorage.getItem('vykon_proposal_step');
+    return savedStep ? parseInt(savedStep, 10) : 1;
+  });
   const [editProposalNo, setEditProposalNo] = useState(false);
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light-mode'));
   
@@ -141,7 +145,17 @@ const ProposalForm = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const [formData, setFormData] = useState(editData || {
+  const [formData, setFormData] = useState(() => {
+    if (editData) return editData;
+    const savedDraft = localStorage.getItem('vykon_proposal_draft');
+    if (savedDraft) {
+      try {
+        return JSON.parse(savedDraft);
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+      }
+    }
+    return {
     // Step 1: Cover
     customerType: 'Commercial',
     companyName: '',
@@ -221,7 +235,21 @@ const ProposalForm = () => {
     
     // Field-specific colors
     fieldColors: {}
+    };
   });
+
+  // Autosave Draft
+  useEffect(() => {
+    if (!editData) {
+      localStorage.setItem('vykon_proposal_draft', JSON.stringify(formData));
+    }
+  }, [formData, editData]);
+
+  useEffect(() => {
+    if (!editData) {
+      localStorage.setItem('vykon_proposal_step', step.toString());
+    }
+  }, [step, editData]);
 
   useEffect(() => {
     const fetchImages = async () => {

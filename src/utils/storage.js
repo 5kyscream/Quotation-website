@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient';
 const PROPOSALS_KEY = 'vykon_proposals'; // Fallback key
 
 export const getProposals = async () => {
+  let dbProposals = [];
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -10,16 +11,34 @@ export const getProposals = async () => {
         .select('*')
         .order('created_at', { ascending: false });
         
-      if (error) throw error;
-      return data || [];
+      if (!error && data) {
+        dbProposals = data;
+      } else if (error) {
+        console.error('Error fetching proposals from Supabase:', error.message);
+      }
     } catch (error) {
       console.error('Error fetching proposals from Supabase:', error.message);
-      // Fallback to local storage if network fails
-      return getLocalProposals();
     }
-  } else {
-    return getLocalProposals();
   }
+  
+  const localProposals = getLocalProposals();
+  
+  // Merge DB and local, preferring DB if duplicate IDs exist
+  const combined = [...localProposals, ...dbProposals];
+  const uniqueMap = new Map();
+  combined.forEach(p => {
+    // Use proposalNumber as secondary key if id is missing
+    const key = p.id || p.proposalNumber;
+    uniqueMap.set(key, p);
+  });
+  
+  const allProposals = Array.from(uniqueMap.values());
+  // Sort by date (newest first)
+  return allProposals.sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.date).getTime();
+    const dateB = new Date(b.createdAt || b.date).getTime();
+    return dateB - dateA;
+  });
 };
 
 export const getProposalById = async (id) => {
@@ -64,6 +83,12 @@ export const saveProposal = async (proposal) => {
       // Remove local 'id' as Supabase uses a UUID DB-generated id, unless it's an update.
       // Our form just creates new proposals, so we'll just insert.
       const { id, ...proposalData } = proposal; 
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        proposalData.user_id = user.id;
+        proposalData.user_email = user.email;
+      }
       
       const { data, error } = await supabase
         .from('proposals')

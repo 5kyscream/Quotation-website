@@ -436,15 +436,29 @@ const ProposalForm = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div className="form-group">
-                  <label className="form-label">Client Name / Company *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Client Name / Company *</span>
+                    <CustomColorPicker name="fieldColors.companyName" value={formData.fieldColors?.companyName || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
+                  </label>
                   <input required type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Contact Person Name *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Contact Person Name *</span>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Attn:</span>
+                      <CustomColorPicker name="fieldColors.attn" value={formData.fieldColors?.attn || '#D4C5A0'} onChange={handleFieldColorChange} title="Attn Label Color" />
+                      <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginLeft: '4px', textTransform: 'uppercase' }}>Name:</span>
+                      <CustomColorPicker name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} title="Name Text Color" />
+                    </div>
+                  </label>
                   <input required type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Project size (kWp) *</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Project size (kWp) *</span>
+                    <CustomColorPicker name="fieldColors.capacity" value={formData.fieldColors?.capacity || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
+                  </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group">

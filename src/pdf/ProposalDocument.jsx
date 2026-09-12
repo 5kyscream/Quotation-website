@@ -184,7 +184,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               PREPARED FOR: <span style={{ color: formData.fieldColors?.customerType || 'inherit' }}>{formData.customerType}</span>
             </p>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: formData.fieldColors?.companyName || 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>
+            <p style={{ fontFamily: 'var(--font-body)', color: formData.fieldColors?.attn || 'var(--color-earth)', fontSize: '14px', marginTop: '8px' }}>
               Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'inherit' }}>{formData.contactPerson}</span>
             </p>
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-earth)', fontSize: '14px' }}>{formData.date}</p>

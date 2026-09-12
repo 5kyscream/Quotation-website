@@ -135,14 +135,16 @@ const SiteAddressInput = ({ value, onChange, onCoordsChange, lat, lng }) => {
         </div>
       </div>
 
-      <MapPinModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        initialAddress={query}
-        initialLat={lat}
-        initialLng={lng}
-        onSave={handleModalSave} 
-      />
+      {isModalOpen && (
+        <MapPinModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          initialAddress={query}
+          initialLat={lat}
+          initialLng={lng}
+          onSave={handleModalSave} 
+        />
+      )}
     </div>
   );
 };

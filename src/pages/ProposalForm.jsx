@@ -192,9 +192,11 @@ const ProposalForm = () => {
     amcEnabled: false,
     amcDetails: 'Extended AMC available after the first year. Subject to 2% annual price increase.',
     amcCostAnnual: '50000',
-    paymentAdvance: '20',
-    paymentStructure: '20',
-    paymentReceipt: '60',
+    paymentTerms: [
+      { enabled: true, percent: '20', text: 'Advance with work order' },
+      { enabled: true, percent: '20', text: 'After structure & CEIG' },
+      { enabled: true, percent: '60', text: 'After receipt of material' }
+    ],
 
     // Step 6: Financing
     isLoan: false,
@@ -384,6 +386,26 @@ const ProposalForm = () => {
         ...(prev.fieldColors || {}),
         [key]: value
       }
+    }));
+  };
+
+  const handlePaymentTermChange = (index, field, value) => {
+    const newTerms = [...(formData.paymentTerms || [])];
+    newTerms[index] = { ...newTerms[index], [field]: value };
+    setFormData(prev => ({ ...prev, paymentTerms: newTerms }));
+  };
+
+  const addPaymentTerm = () => {
+    setFormData(prev => ({
+      ...prev,
+      paymentTerms: [...(prev.paymentTerms || []), { enabled: true, percent: '0', text: '' }]
+    }));
+  };
+
+  const removePaymentTerm = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentTerms: (prev.paymentTerms || []).filter((_, i) => i !== index)
     }));
   };
 
@@ -656,18 +678,50 @@ const ProposalForm = () => {
 
               <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--color-muted-blue)' }}>Payment Terms (%)</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>Advance with work order</span>
-                  <input type="number" name="paymentAdvance" value={formData.paymentAdvance} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>After structure & CEIG</span>
-                  <input type="number" name="paymentStructure" value={formData.paymentStructure} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>After receipt of material</span>
-                  <input type="number" name="paymentReceipt" value={formData.paymentReceipt} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
+                {(formData.paymentTerms || []).map((term, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={term.enabled !== false} 
+                      onChange={(e) => handlePaymentTermChange(index, 'enabled', e.target.checked)} 
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--color-teal)' }}
+                    />
+                    <input 
+                      type="text" 
+                      value={term.text} 
+                      onChange={(e) => handlePaymentTermChange(index, 'text', e.target.value)} 
+                      className="form-input" 
+                      style={{ flex: 1, opacity: term.enabled !== false ? 1 : 0.5 }} 
+                      placeholder="Payment term description"
+                      disabled={term.enabled === false}
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: term.enabled !== false ? 1 : 0.5 }}>
+                      <input 
+                        type="number" 
+                        value={term.percent} 
+                        onChange={(e) => handlePaymentTermChange(index, 'percent', e.target.value)} 
+                        className="form-input" 
+                        style={{ width: '80px' }} 
+                        disabled={term.enabled === false}
+                      />
+                      <span style={{ color: 'var(--color-white)' }}>%</span>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => removePaymentTerm(index)}
+                      style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '4px' }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+                <button 
+                  type="button" 
+                  onClick={addPaymentTerm}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: '1px dashed var(--color-teal)', color: 'var(--color-teal)', padding: '12px', borderRadius: '4px', cursor: 'pointer', justifyContent: 'center', marginTop: '8px' }}
+                >
+                  <Plus size={16} /> Add Payment Term
+                </button>
               </div>
             </div>
           )}

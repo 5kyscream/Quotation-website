@@ -105,6 +105,7 @@ export const calculateFinancials = (inputs) => {
 
   return {
     projectCost,
+    gstRate,
     gstAmount,
     grandTotal,
     annualGeneration,

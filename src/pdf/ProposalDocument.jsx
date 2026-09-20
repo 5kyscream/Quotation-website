@@ -375,7 +375,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             )}
             <tr>
               <td>Taxes</td>
-              <td>GST @ {formData.gstRate}%</td>
+              <td>GST @ {fin.gstRate}%</td>
               <td style={{ textAlign: 'right' }}>{formatCurrency(fin.gstAmount)}</td>
             </tr>
             <tr className="total-row">
@@ -437,21 +437,18 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
 
         <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Payment Terms</h3>
         <div style={{ backgroundColor: 'var(--color-bg-subtle)', padding: '24px', borderRadius: '8px', border: '1px solid var(--color-bg-hover)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentAdvance}%</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>Advance with work order</div>
-            </div>
-            <ArrowRight size={24} color="var(--color-muted-blue)" />
-            <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentStructure}%</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>After structure & CEIG</div>
-            </div>
-            <ArrowRight size={24} color="var(--color-muted-blue)" />
-            <div style={{ textAlign: 'center', width: '30%' }}>
-              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.paymentReceipt}%</div>
-              <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>After receipt of material</div>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            {(formData.paymentTerms || []).filter(t => t.enabled !== false).map((term, idx, arr) => (
+              <React.Fragment key={idx}>
+                <div style={{ textAlign: 'center', flex: 1, minWidth: '120px' }}>
+                  <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{term.percent}%</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>{term.text}</div>
+                </div>
+                {idx < arr.length - 1 && (
+                  <ArrowRight size={24} color="var(--color-muted-blue)" />
+                )}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </Page>

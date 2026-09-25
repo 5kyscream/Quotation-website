@@ -253,7 +253,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-white)', fontSize: '14px', marginTop: '8px' }}>
                 Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'var(--color-white)' }}>{formData.contactPerson}</span>
               </p>
-            )}>
+            )}
             <p style={{ fontFamily: 'var(--font-body)', color: formData.fieldColors?.date || 'var(--color-white)', fontSize: '14px' }}>{formData.date}</p>
           </div>
         </div>

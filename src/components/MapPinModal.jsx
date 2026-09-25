@@ -12,45 +12,59 @@ const MapUpdater = ({ center }) => {
   return null;
 };
 
-const MapPinModal = ({ isOpen, onClose, initialAddress, onSave, initialLat, initialLng }) => {
-  const [center, setCenter] = useState([initialLat || 28.6139, initialLng || 77.2090]); // Default to Delhi if none
   const [address, setAddress] = useState(initialAddress || '');
   const [isDragging, setIsDragging] = useState(false);
+  const mapRef = useRef(null);
 
   // Debounce for reverse geocoding
   const debounceTimeout = useRef(null);
 
-  // Update center when modal opens if initial coords changed
+  // Update map view when modal opens if initial coords changed
   useEffect(() => {
-    if (isOpen) {
-      setCenter([initialLat || 28.6139, initialLng || 77.2090]);
+    if (isOpen && mapRef.current) {
+      mapRef.current.setView([initialLat || 28.6139, initialLng || 77.2090], mapRef.current.getZoom(), { animate: false });
       setAddress(initialAddress || '');
     }
   }, [isOpen, initialLat, initialLng, initialAddress]);
 
   // Custom component to handle map events
   const MapEvents = () => {
+    const map = useMap();
+    useEffect(() => {
+      mapRef.current = map;
+      // Also set initial view when map first initializes if it's open
+      if (isOpen) {
+        map.setView([initialLat || 28.6139, initialLng || 77.2090], map.getZoom(), { animate: false });
+      }
+    }, [map]);
+
     useMapEvents({
       dragstart: () => {
         setIsDragging(true);
       },
       moveend: (e) => {
         setIsDragging(false);
-        const map = e.target;
-        const { lat, lng } = map.getCenter();
-        setCenter([lat, lng]);
+        const { lat, lng } = e.target.getCenter();
         
         // Reverse geocode
         if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        setAddress("Loading address...");
         debounceTimeout.current = setTimeout(() => {
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+            headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'VykonQuotationApp/1.0' }
+          })
             .then(res => res.json())
             .then(data => {
               if (data && data.display_name) {
                 setAddress(data.display_name);
+              } else {
+                setAddress("Address not found");
               }
             })
-            .catch(err => console.error("Reverse geocoding error:", err));
+            .catch(err => {
+              console.error("Reverse geocoding error:", err);
+              setAddress("Error fetching address");
+            });
         }, 500);
       }
     });
@@ -58,7 +72,11 @@ const MapPinModal = ({ isOpen, onClose, initialAddress, onSave, initialLat, init
   };
 
   const handleSave = () => {
-    onSave({ address, lat: center[0], lng: center[1] });
+    if (mapRef.current) {
+      const { lat, lng } = mapRef.current.getCenter();
+      const finalAddress = (address === "Loading address..." || address === "Error fetching address" || address === "Address not found") ? "" : address;
+      onSave({ address: finalAddress, lat, lng });
+    }
     onClose();
   };
 
@@ -83,7 +101,7 @@ const MapPinModal = ({ isOpen, onClose, initialAddress, onSave, initialLat, init
         
         <div style={{ height: '400px', position: 'relative' }}>
           <MapContainer 
-            center={center} 
+            center={[initialLat || 28.6139, initialLng || 77.2090]} 
             zoom={18} 
             style={{ height: '100%', width: '100%' }}
             zoomControl={true}
@@ -92,7 +110,6 @@ const MapPinModal = ({ isOpen, onClose, initialAddress, onSave, initialLat, init
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution="Tiles &copy; Esri"
             />
-            <MapUpdater center={center} />
             <MapEvents />
           </MapContainer>
           

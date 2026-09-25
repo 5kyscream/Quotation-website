@@ -23,7 +23,9 @@ const SiteAddressInput = ({ value, onChange, onCoordsChange, lat, lng }) => {
       setSuggestions([]);
       return;
     }
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&limit=5`)
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&limit=5`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'VykonQuotationApp/1.0' }
+    })
       .then(res => res.json())
       .then(data => {
         setSuggestions(data);

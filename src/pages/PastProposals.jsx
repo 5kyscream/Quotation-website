@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getProposals, deleteProposal } from '../utils/storage';
 import { Trash2, Download, Eye, Loader } from 'lucide-react';
 import { generatePptx } from '../utils/PptxRenderer';
+import { calculateFinancials, formatCurrency } from '../utils/calculations';
 
 const PastProposals = () => {
   const [proposals, setProposals] = useState([]);
@@ -71,6 +72,7 @@ const PastProposals = () => {
                 <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Proposal No.</th>
                 <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Client Name</th>
                 <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Capacity (kWp)</th>
+                <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Total Budget</th>
                 <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Date</th>
                 <th style={{ padding: '16px', fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--color-white)', fontSize: '14px' }}>Actions</th>
               </tr>
@@ -86,6 +88,7 @@ const PastProposals = () => {
                   <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.proposalNumber}</td>
                   <td style={{ padding: '16px', color: 'var(--color-white)' }}>{prop.companyName || prop.clientName}</td>
                   <td style={{ padding: '16px', color: 'var(--color-teal)', fontWeight: 600 }}>{prop.capacity}</td>
+                  <td style={{ padding: '16px', color: 'var(--color-orange)', fontWeight: 600 }}>{formatCurrency(calculateFinancials(prop).grandTotal)}</td>
                   <td style={{ padding: '16px', color: 'var(--color-muted-blue)' }}>{prop.date}</td>
                   <td style={{ padding: '16px', display: 'flex', gap: '12px' }}>
                     <button 

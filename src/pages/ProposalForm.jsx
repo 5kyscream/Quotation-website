@@ -127,6 +127,8 @@ const DEFAULT_COVER_IMAGES = [
 const ProposalForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const proposalTypeUrl = searchParams.get('type');
   const editData = location.state?.editData;
   const [step, setStep] = useState(() => {
     if (editData) return 1;
@@ -156,6 +158,8 @@ const ProposalForm = () => {
       }
     }
     return {
+    proposalType: proposalTypeUrl || 'final',
+    showContactPerson: true,
     // Step 1: Cover
     customerType: 'Commercial',
     companyName: '',
@@ -179,8 +183,8 @@ const ProposalForm = () => {
     monthlyConsumption: '',
 
     // Step 3: System & Cost
-    tariffRate: '',
-    costPerWp: '',
+    tariffRate: '8.5',
+    costPerWp: '50',
     year1GenerationPerKwp: '1460',
     degradationRate: '0.7',
     subsidyAmount: '0',
@@ -466,13 +470,16 @@ const ProposalForm = () => {
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>Contact Person Name *</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>Contact Person Name</span>
+                      <input type="checkbox" name="showContactPerson" checked={formData.showContactPerson !== false} onChange={handleChange} style={{ width: '16px', height: '16px', cursor: 'pointer' }} title="Show on cover" />
+                    </div>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <span style={{ fontSize: '10px', color: 'var(--color-muted-blue)', marginLeft: '4px', textTransform: 'uppercase' }}>Name:</span>
                       <CustomColorPicker name="fieldColors.contactPerson" value={formData.fieldColors?.contactPerson || '#ffffff'} onChange={handleFieldColorChange} title="Name Text Color" />
                     </div>
                   </label>
-                  <input required type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="form-input" />
+                  <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="form-input" disabled={formData.showContactPerson === false} style={{ opacity: formData.showContactPerson === false ? 0.5 : 1 }} />
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -514,6 +521,17 @@ const ProposalForm = () => {
                     />
                   </div>
                 </label>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '12px' }}>
+                  <button type="button" onClick={() => {
+                    const newBackgrounds = { ...formData.pageBackgrounds };
+                    for (let i = 1; i <= 10; i++) {
+                      newBackgrounds[`page-${i}`] = formData.coverImage;
+                    }
+                    setFormData(prev => ({ ...prev, pageBackgrounds: newBackgrounds }));
+                  }} className="btn-secondary" style={{ padding: '8px 12px', fontSize: '12px', backgroundColor: 'var(--color-navy)' }}>
+                    Apply to All Pages
+                  </button>
+                </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   {DEFAULT_COVER_IMAGES.map((img, i) => (
                     <div 
@@ -602,32 +620,42 @@ const ProposalForm = () => {
                   </label>
                   <input required type="number" name="capacity" value={formData.capacity} onChange={handleChange} className="form-input" />
                 </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>Electricity Tariff (₹ per kWh) *</span>
-                    <CustomColorPicker name="fieldColors.tariffRate" value={formData.fieldColors?.tariffRate || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
-                  </label>
-                  <input required type="number" step="0.01" name="tariffRate" value={formData.tariffRate} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>Cost per Wp (₹, excl. GST) *</span>
-                    <CustomColorPicker name="fieldColors.costPerWp" value={formData.fieldColors?.costPerWp || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
-                  </label>
-                  <input required type="number" step="0.01" name="costPerWp" value={formData.costPerWp} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Year 1 generation per kWp</label>
-                  <input type="number" name="year1GenerationPerKwp" value={formData.year1GenerationPerKwp} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Annual Degradation (%)</label>
-                  <input type="number" step="0.1" name="degradationRate" value={formData.degradationRate} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Subsidy amount (₹)</label>
-                  <input type="number" name="subsidyAmount" value={formData.subsidyAmount} onChange={handleChange} className="form-input" />
-                </div>
+                {formData.proposalType === 'initial' && (
+                  <div className="form-group">
+                    <label className="form-label">Material displacement (Optional)</label>
+                    <input type="text" name="materialDisplacement" value={formData.materialDisplacement || ''} onChange={handleChange} className="form-input" placeholder="e.g. 500 tons" />
+                  </div>
+                )}
+                {formData.proposalType !== 'initial' && (
+                  <>
+                    <div className="form-group">
+                      <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Electricity Tariff (₹ per kWh) *</span>
+                        <CustomColorPicker name="fieldColors.tariffRate" value={formData.fieldColors?.tariffRate || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
+                      </label>
+                      <input required type="number" step="0.01" name="tariffRate" value={formData.tariffRate} onChange={handleChange} className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Cost per Wp (₹, excl. GST) *</span>
+                        <CustomColorPicker name="fieldColors.costPerWp" value={formData.fieldColors?.costPerWp || '#ffffff'} onChange={handleFieldColorChange} title="Text Color" />
+                      </label>
+                      <input required type="number" step="0.01" name="costPerWp" value={formData.costPerWp} onChange={handleChange} className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Year 1 generation per kWp</label>
+                      <input type="number" name="year1GenerationPerKwp" value={formData.year1GenerationPerKwp} onChange={handleChange} className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Annual Degradation (%)</label>
+                      <input type="number" step="0.1" name="degradationRate" value={formData.degradationRate} onChange={handleChange} className="form-input" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Subsidy amount (₹)</label>
+                      <input type="number" name="subsidyAmount" value={formData.subsidyAmount} onChange={handleChange} className="form-input" />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -752,8 +780,17 @@ const ProposalForm = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label">Loan source</label>
-                    <input type="text" name="loanSource" value={formData.loanSource} onChange={handleChange} className="form-input" />
+                    <select name="loanSource" value={formData.loanSource} onChange={handleChange} className="form-input">
+                      <option value="Finance from Vykon">Finance from Vykon</option>
+                      <option value="Third Party Finance">Finance from Third Party</option>
+                    </select>
                   </div>
+                  {formData.loanSource === 'Third Party Finance' && (
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label className="form-label">Third Party Finance Details</label>
+                      <textarea name="thirdPartyFinanceDetails" value={formData.thirdPartyFinanceDetails || ''} onChange={handleChange} className="form-input" style={{ height: '80px' }} placeholder="Mention bank name, terms, etc." />
+                    </div>
+                  )}
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                     <label className="form-label">Downpayment (equity %)</label>
                     <input type="number" name="downPayment" value={formData.downPayment} onChange={handleChange} className="form-input" />
@@ -778,14 +815,114 @@ const ProposalForm = () => {
           {step === 7 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 7: Scope & Timeline</h2>
-              <p style={{ color: 'var(--color-muted-blue)', fontSize: '14px', marginBottom: '16px' }}>* Items are pre-populated. To edit, modify state in code for now (Complex list UI to be fully implemented next).</p>
+              
+              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Scope of Work</h3>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                  <div>Task Name</div><div style={{ textAlign: 'center' }}>Vykon (EPC)</div><div style={{ textAlign: 'center' }}>Customer</div><div></div>
+                </div>
+                {formData.scopeItems.map((item, idx) => (
+                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
+                    <input type="text" value={item.name} onChange={(e) => {
+                      const newItems = [...formData.scopeItems];
+                      newItems[idx].name = e.target.value;
+                      setFormData(prev => ({...prev, scopeItems: newItems}));
+                    }} className="form-input" />
+                    <label style={{ display: 'flex', justifyContent: 'center' }}>
+                      <input type="checkbox" checked={item.epc} onChange={(e) => {
+                        const newItems = [...formData.scopeItems];
+                        newItems[idx].epc = e.target.checked;
+                        setFormData(prev => ({...prev, scopeItems: newItems}));
+                      }} style={{ width: '16px', height: '16px' }} />
+                    </label>
+                    <label style={{ display: 'flex', justifyContent: 'center' }}>
+                      <input type="checkbox" checked={item.cust} onChange={(e) => {
+                        const newItems = [...formData.scopeItems];
+                        newItems[idx].cust = e.target.checked;
+                        setFormData(prev => ({...prev, scopeItems: newItems}));
+                      }} style={{ width: '16px', height: '16px' }} />
+                    </label>
+                    <button type="button" onClick={() => {
+                        setFormData(prev => ({...prev, scopeItems: formData.scopeItems.filter((_, i) => i !== idx)}));
+                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => {
+                  setFormData(prev => ({...prev, scopeItems: [...formData.scopeItems, { id: Date.now(), name: '', epc: true, cust: false }]}));
+                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Scope Item</button>
+              </div>
+
+              <h3 className="subheading" style={{ fontSize: '16px', marginTop: '32px', marginBottom: '16px' }}>Project Schedule</h3>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                  <div>Phase Name</div><div>Timeline (Days)</div><div></div>
+                </div>
+                {formData.projectSchedule.map((item, idx) => (
+                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
+                    <input type="text" value={item.name} onChange={(e) => {
+                      const newItems = [...formData.projectSchedule];
+                      newItems[idx].name = e.target.value;
+                      setFormData(prev => ({...prev, projectSchedule: newItems}));
+                    }} className="form-input" />
+                    <input type="text" value={item.days} onChange={(e) => {
+                      const newItems = [...formData.projectSchedule];
+                      newItems[idx].days = e.target.value;
+                      setFormData(prev => ({...prev, projectSchedule: newItems}));
+                    }} className="form-input" />
+                    <button type="button" onClick={() => {
+                        setFormData(prev => ({...prev, projectSchedule: formData.projectSchedule.filter((_, i) => i !== idx)}));
+                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => {
+                  setFormData(prev => ({...prev, projectSchedule: [...formData.projectSchedule, { id: Date.now(), name: '', days: '' }]}));
+                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Phase</button>
+              </div>
             </div>
           )}
 
           {step === 8 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 8: BoM & Warranty</h2>
-              <p style={{ color: 'var(--color-muted-blue)', fontSize: '14px', marginBottom: '16px' }}>* Items are pre-populated. To edit, modify state in code for now (Complex list UI to be fully implemented next).</p>
+              
+              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Bill of Materials</h3>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                  <div style={{ textAlign: 'center' }}>Incl.</div><div>Component</div><div>Make</div><div>Quantity</div><div></div>
+                </div>
+                {formData.bomItems.map((item, idx) => (
+                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center', opacity: item.enabled === false ? 0.5 : 1 }}>
+                    <label style={{ display: 'flex', justifyContent: 'center' }}>
+                      <input type="checkbox" checked={item.enabled !== false} onChange={(e) => {
+                        const newItems = [...formData.bomItems];
+                        newItems[idx].enabled = e.target.checked;
+                        setFormData(prev => ({...prev, bomItems: newItems}));
+                      }} style={{ width: '16px', height: '16px' }} />
+                    </label>
+                    <input type="text" value={item.component} onChange={(e) => {
+                      const newItems = [...formData.bomItems];
+                      newItems[idx].component = e.target.value;
+                      setFormData(prev => ({...prev, bomItems: newItems}));
+                    }} className="form-input" disabled={item.enabled === false} />
+                    <input type="text" value={item.make} onChange={(e) => {
+                      const newItems = [...formData.bomItems];
+                      newItems[idx].make = e.target.value;
+                      setFormData(prev => ({...prev, bomItems: newItems}));
+                    }} className="form-input" disabled={item.enabled === false} />
+                    <input type="text" value={item.qty} onChange={(e) => {
+                      const newItems = [...formData.bomItems];
+                      newItems[idx].qty = e.target.value;
+                      setFormData(prev => ({...prev, bomItems: newItems}));
+                    }} className="form-input" disabled={item.enabled === false} />
+                    <button type="button" onClick={() => {
+                        setFormData(prev => ({...prev, bomItems: formData.bomItems.filter((_, i) => i !== idx)}));
+                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => {
+                  setFormData(prev => ({...prev, bomItems: [...formData.bomItems, { id: Date.now(), component: '', make: '', qty: '', enabled: true }]}));
+                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Material</button>
+              </div>
               
               <h3 className="subheading" style={{ fontSize: '16px', marginTop: '32px', marginBottom: '16px' }}>Warranty Terms</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
@@ -828,9 +965,13 @@ const ProposalForm = () => {
                   <label className="form-label">Email</label>
                   <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="form-input" />
                 </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Office Address</label>
+                <div className="form-group">
+                  <label className="form-label">Primary Office Address</label>
                   <input type="text" name="contactAddress" value={formData.contactAddress} onChange={handleChange} className="form-input" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Secondary Office Address</label>
+                  <input type="text" name="contactAddress2" value={formData.contactAddress2 || ''} onChange={handleChange} className="form-input" />
                 </div>
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">Website</label>

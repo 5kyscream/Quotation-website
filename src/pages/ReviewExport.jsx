@@ -142,7 +142,7 @@ const ReviewExport = () => {
           <button 
             className="btn-secondary" 
             onClick={handleGeneratePdf}
-            disabled={isGenerating || isGeneratingPdf || generated}
+            disabled={isGenerating || isGeneratingPdf}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px' }}
           >
             {isGeneratingPdf ? (
@@ -155,7 +155,7 @@ const ReviewExport = () => {
           <button 
             className="btn-primary" 
             onClick={handleGenerate}
-            disabled={isGenerating || isGeneratingPdf || generated}
+            disabled={isGenerating || isGeneratingPdf}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px' }}
           >
             {isGenerating ? (

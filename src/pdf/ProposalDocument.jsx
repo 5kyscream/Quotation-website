@@ -249,9 +249,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               PREPARED FOR: <span style={{ color: formData.fieldColors?.customerType || 'var(--color-white)' }}>{formData.customerType}</span>
             </p>
             <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: formData.fieldColors?.companyName || 'var(--color-white)', fontSize: '32px', lineHeight: 1.2 }}>{formData.companyName}</p>
-            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-white)', fontSize: '14px', marginTop: '8px' }}>
-              Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'var(--color-white)' }}>{formData.contactPerson}</span>
-            </p>
+            {formData.showContactPerson !== false && formData.contactPerson && (
+              <p style={{ fontFamily: 'var(--font-body)', color: 'var(--color-white)', fontSize: '14px', marginTop: '8px' }}>
+                Attn: <span style={{ color: formData.fieldColors?.contactPerson || 'var(--color-white)' }}>{formData.contactPerson}</span>
+              </p>
+            )}>
             <p style={{ fontFamily: 'var(--font-body)', color: formData.fieldColors?.date || 'var(--color-white)', fontSize: '14px' }}>{formData.date}</p>
           </div>
         </div>
@@ -475,7 +477,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>1st Year Monthly Generation (kWh)</h3>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>1st Year Monthly Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
         <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyGenData}>
@@ -487,7 +489,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </ResponsiveContainer>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Annual Generation (kWh)</h3>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Annual Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
         <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={gen25YrData} margin={{ left: -10 }}>
@@ -499,7 +501,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </ResponsiveContainer>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Cumulative Savings (Lakhs INR)</h3>
+        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Cumulative Savings (Lakhs INR) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
         <div style={{ height: '140px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={savings25YrData} margin={{ left: -10 }}>
@@ -649,7 +651,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             </tr>
           </thead>
           <tbody>
-            {formData.bomItems.map((item, idx) => (
+            {formData.bomItems.filter(item => item.enabled !== false).map((item, idx) => (
               <tr key={idx}>
                 <td>{item.component}</td>
                 <td>{item.make}</td>
@@ -730,7 +732,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           Our goal is to provide clean, renewable, green energy to discern customers such as yourself. By choosing solar energy, you're not just investing in clean, renewable power — you're joining us in creating a more sustainable future for generations to come. Let's work together to make a positive impact on our planet.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: formData.materialDisplacement ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr', gap: '16px', marginBottom: '40px' }}>
+          {formData.materialDisplacement && (
+            <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
+              <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.materialDisplacement}</div>
+              <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Material Displacement</div>
+            </div>
+          )}
           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
             <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.co2Offset.toLocaleString(undefined, { maximumFractionDigits: 0 })} Tonnes</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>CO2 Offset</div>
@@ -751,7 +759,10 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <p style={{ fontSize: '10px', marginBottom: '24px' }}>We'd love to hear from you!</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={14} /> {formData.contactPhone}</div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><MapPin size={14} style={{ marginTop: '2px' }} /> {formData.contactAddress}</div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><MapPin size={14} style={{ marginTop: '2px', flexShrink: 0 }} /> <span>{formData.contactAddress}</span></div>
+              {formData.contactAddress2 && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><MapPin size={14} style={{ marginTop: '2px', flexShrink: 0 }} /> <span>{formData.contactAddress2}</span></div>
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={14} /> {formData.contactEmail}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {formData.contactWebsite}</div>
             </div>

@@ -23,9 +23,12 @@ const Dashboard = () => {
         <StatCard value="180" unit="kWp" label="Max Single Site" color="var(--color-white)" />
       </div>
 
-      <div style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
-        <Link to="/new" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px', textDecoration: 'none' }}>
-          Create New Proposal <ArrowRight size={20} />
+      <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <Link to="/new?type=initial" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px', textDecoration: 'none', backgroundColor: 'var(--color-teal)' }}>
+          Create Initial Proposal <ArrowRight size={20} />
+        </Link>
+        <Link to="/new?type=final" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px', textDecoration: 'none', backgroundColor: 'var(--color-orange)' }}>
+          Create Final Proposal <ArrowRight size={20} />
         </Link>
         <Link to="/proposals" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '16px 32px', fontSize: '16px', textDecoration: 'none' }}>
           <FileText size={20} /> View Past Proposals

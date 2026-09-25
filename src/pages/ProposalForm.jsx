@@ -119,6 +119,13 @@ const defaultTerms = [
   { id: 8, title: "Liaison", text: "Net metering application, CEIG approvals, and other regulatory liaison are not included in the scope unless explicitly stated. These can be provided as an add-on service." }
 ];
 
+const defaultPaymentTerms = [
+  { enabled: true, percent: '20', text: 'Advance with work order' },
+  { enabled: true, percent: '60', text: 'Against proforma invoice & intimation of dispatch of material' },
+  { enabled: true, percent: '15', text: 'On Installation of solar pv plant' },
+  { enabled: true, percent: '5', text: 'On commissioning & Handover of solar pv plant' }
+];
+
 const DEFAULT_COVER_IMAGES = [
   'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1592833159057-6fc1253018e4?q=80&w=600&auto=format&fit=crop'
@@ -240,7 +247,30 @@ const ProposalForm = () => {
     },
     
     // Field-specific colors
-    fieldColors: {}
+    fieldColors: {},
+    
+    // Visibility toggles
+    showBenefitsPage: true,
+    showSystemPricingPage: true,
+    showPricingTable: true,
+    showPaymentTermsSection: true,
+    showProjectOutcomesPage: true,
+    showOutcomesMonthlyGen: true,
+    showOutcomesAnnualGen: true,
+    showOutcomesSavings: true,
+    showScopePage: true,
+    showScopeTable: true,
+    showTimelineChart: true,
+    showBomPage: true,
+    showBomTable: true,
+    showWarrantyTerms: true,
+    showTermsPage: true,
+    showTermsList: true,
+    showExclusions: true,
+    showAboutPage: true,
+    showContactPage: true,
+    showEnvImpact: true,
+    showContactInfo: true
     };
   });
 
@@ -363,10 +393,54 @@ const ProposalForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    setFormData(prev => {
+      const finalValue = type === 'checkbox' ? checked : value;
+      const updates = { [name]: finalValue };
+
+      if (type === 'checkbox' && checked === true) {
+        // Individual list restores
+        if (name === 'showScopeTable') updates.scopeItems = defaultScope;
+        if (name === 'showTimelineChart') updates.projectSchedule = defaultSchedule;
+        if (name === 'showBomTable') updates.bomItems = defaultBom;
+        if (name === 'showTermsList') updates.termsConditions = defaultTerms;
+        if (name === 'showPaymentTermsSection') updates.paymentTerms = defaultPaymentTerms;
+        
+        // Parent section restores
+        if (name === 'showSystemPricingPage') {
+          updates.showPricingTable = true;
+          updates.showPaymentTermsSection = true;
+          updates.paymentTerms = defaultPaymentTerms;
+        }
+        if (name === 'showProjectOutcomesPage') {
+          updates.showOutcomesMonthlyGen = true;
+          updates.showOutcomesAnnualGen = true;
+          updates.showOutcomesSavings = true;
+        }
+        if (name === 'showScopePage') {
+          updates.showScopeTable = true;
+          updates.showTimelineChart = true;
+          updates.scopeItems = defaultScope;
+          updates.projectSchedule = defaultSchedule;
+        }
+        if (name === 'showBomPage') {
+          updates.showBomTable = true;
+          updates.showWarrantyTerms = true;
+          updates.bomItems = defaultBom;
+        }
+        if (name === 'showTermsPage') {
+          updates.showTermsList = true;
+          updates.showExclusions = true;
+          updates.termsConditions = defaultTerms;
+        }
+        if (name === 'showContactPage') {
+          updates.showEnvImpact = true;
+          updates.showContactInfo = true;
+        }
+      }
+
+      return { ...prev, ...updates };
+    });
   };
 
   const handleThemeChange = (e) => {
@@ -407,10 +481,14 @@ const ProposalForm = () => {
   };
 
   const removePaymentTerm = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      paymentTerms: (prev.paymentTerms || []).filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      const newTerms = (prev.paymentTerms || []).filter((_, i) => i !== index);
+      return {
+        ...prev,
+        paymentTerms: newTerms,
+        showPaymentTermsSection: newTerms.length === 0 ? false : prev.showPaymentTermsSection
+      };
+    });
   };
 
   const nextStep = () => {
@@ -574,6 +652,12 @@ const ProposalForm = () => {
           {step === 2 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 2: Customer Details</h2>
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showBenefitsPage" checked={formData.showBenefitsPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "Benefits & Customer Details" Page in PDF
+                </label>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div className="form-group">
                   <label className="form-label">Phone Number *</label>
@@ -664,15 +748,31 @@ const ProposalForm = () => {
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 4: Pricing & Payment</h2>
               
-              <div className="form-group" style={{ marginBottom: '32px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
-                  <input type="checkbox" name="taxBenefitAvailable" checked={formData.taxBenefitAvailable} onChange={handleChange} style={{ width: '20px', height: '20px' }} />
-                  GST / Tax Benefit Available?
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showSystemPricingPage" checked={formData.showSystemPricingPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "System Pricing" Page in PDF
                 </label>
               </div>
 
+              {formData.showSystemPricingPage !== false && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showPricingTable" checked={formData.showPricingTable !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Main Pricing Table
+                    </label>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '32px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="taxBenefitAvailable" checked={formData.taxBenefitAvailable} onChange={handleChange} style={{ width: '20px', height: '20px' }} />
+                      GST / Tax Benefit Available? (Also shows Incentives table)
+                    </label>
+                  </div>
+
               {formData.taxBenefitAvailable && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px', marginLeft: '24px' }}>
                   <div className="form-group">
                     <label className="form-label">Tax rate (%)</label>
                     <input type="number" name="taxRate" value={formData.taxRate} onChange={handleChange} className="form-input" />
@@ -684,7 +784,7 @@ const ProposalForm = () => {
                 </div>
               )}
 
-              <div className="form-group" style={{ marginBottom: '16px' }}>
+              <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
                   <input type="checkbox" name="amcEnabled" checked={formData.amcEnabled} onChange={handleChange} style={{ width: '20px', height: '20px' }} />
                   Add Annual Maintenance Plan
@@ -692,7 +792,7 @@ const ProposalForm = () => {
               </div>
 
               {formData.amcEnabled && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '32px', marginLeft: '24px' }}>
                   <div className="form-group">
                     <label className="form-label">Service details</label>
                     <textarea name="amcDetails" value={formData.amcDetails} onChange={handleChange} className="form-input" style={{ height: '80px' }} />
@@ -704,64 +804,102 @@ const ProposalForm = () => {
                 </div>
               )}
 
-              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--color-muted-blue)' }}>Payment Terms (%)</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                {(formData.paymentTerms || []).map((term, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={term.enabled !== false} 
-                      onChange={(e) => handlePaymentTermChange(index, 'enabled', e.target.checked)} 
-                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--color-teal)' }}
-                    />
-                    <input 
-                      type="text" 
-                      value={term.text} 
-                      onChange={(e) => handlePaymentTermChange(index, 'text', e.target.value)} 
-                      className="form-input" 
-                      style={{ flex: 1, opacity: term.enabled !== false ? 1 : 0.5 }} 
-                      placeholder="Payment term description"
-                      disabled={term.enabled === false}
-                    />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: term.enabled !== false ? 1 : 0.5 }}>
-                      <input 
-                        type="number" 
-                        value={term.percent} 
-                        onChange={(e) => handlePaymentTermChange(index, 'percent', e.target.value)} 
-                        className="form-input" 
-                        style={{ width: '80px' }} 
-                        disabled={term.enabled === false}
-                      />
-                      <span style={{ color: 'var(--color-white)' }}>%</span>
-                    </div>
+              <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                  <input type="checkbox" name="showPaymentTermsSection" checked={formData.showPaymentTermsSection !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                  Show Payment Terms Section
+                </label>
+              </div>
+
+              {formData.showPaymentTermsSection !== false && (
+                <div style={{ marginLeft: '24px' }}>
+                  <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--color-muted-blue)' }}>Payment Terms (%)</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                    {(formData.paymentTerms || []).map((term, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={term.enabled !== false} 
+                          onChange={(e) => handlePaymentTermChange(index, 'enabled', e.target.checked)} 
+                          style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--color-teal)' }}
+                        />
+                        <input 
+                          type="text" 
+                          value={term.text} 
+                          onChange={(e) => handlePaymentTermChange(index, 'text', e.target.value)} 
+                          className="form-input" 
+                          style={{ flex: 1, opacity: term.enabled !== false ? 1 : 0.5 }} 
+                          placeholder="Payment term description"
+                          disabled={term.enabled === false}
+                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: term.enabled !== false ? 1 : 0.5 }}>
+                          <input 
+                            type="number" 
+                            value={term.percent} 
+                            onChange={(e) => handlePaymentTermChange(index, 'percent', e.target.value)} 
+                            className="form-input" 
+                            style={{ width: '80px' }} 
+                            disabled={term.enabled === false}
+                          />
+                          <span style={{ color: 'var(--color-white)' }}>%</span>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => removePaymentTerm(index)}
+                          style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '4px' }}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    ))}
                     <button 
                       type="button" 
-                      onClick={() => removePaymentTerm(index)}
-                      style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '4px' }}
+                      onClick={addPaymentTerm}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: '1px dashed var(--color-teal)', color: 'var(--color-teal)', padding: '12px', borderRadius: '4px', cursor: 'pointer', justifyContent: 'center', marginTop: '8px' }}
                     >
-                      <Trash2 size={18} />
+                      <Plus size={16} /> Add Payment Term
                     </button>
                   </div>
-                ))}
-                <button 
-                  type="button" 
-                  onClick={addPaymentTerm}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: '1px dashed var(--color-teal)', color: 'var(--color-teal)', padding: '12px', borderRadius: '4px', cursor: 'pointer', justifyContent: 'center', marginTop: '8px' }}
-                >
-                  <Plus size={16} /> Add Payment Term
-                </button>
-              </div>
+                </div>
+              )}
+                </>
+              )}
             </div>
           )}
 
           {step === 5 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 5: Project Outcomes</h2>
-              <div style={{ backgroundColor: 'rgba(0,194,168,0.1)', border: '1px solid var(--color-teal)', padding: '24px', borderRadius: '8px' }}>
-                <h3 className="subheading" style={{ color: 'var(--color-teal)', marginBottom: '8px' }}>Review the project outcomes</h3>
-                <p style={{ color: 'var(--color-white)', fontSize: '14px' }}>The chart panel on the right shows the customer's 1-year and 25-year savings, monthly & yearly generation, and payback period — all derived from the inputs you've already given.</p>
-                <p style={{ color: 'var(--color-white)', fontSize: '14px', marginTop: '16px', fontWeight: 'bold' }}>Hit Next to proceed.</p>
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showProjectOutcomesPage" checked={formData.showProjectOutcomesPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "Project Outcomes" Page in PDF
+                </label>
               </div>
+
+              {formData.showProjectOutcomesPage !== false && (
+                <>
+                  <div style={{ marginLeft: '24px', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showOutcomesMonthlyGen" checked={formData.showOutcomesMonthlyGen !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show 1st Year Monthly Generation Chart
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showOutcomesAnnualGen" checked={formData.showOutcomesAnnualGen !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show 25 Year Annual Generation Chart
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showOutcomesSavings" checked={formData.showOutcomesSavings !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show 25 Year Cumulative Savings Chart
+                    </label>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(0,194,168,0.1)', border: '1px solid var(--color-teal)', padding: '24px', borderRadius: '8px' }}>
+                    <h3 className="subheading" style={{ color: 'var(--color-teal)', marginBottom: '8px' }}>Review the project outcomes</h3>
+                    <p style={{ color: 'var(--color-white)', fontSize: '14px' }}>The chart panel on the right shows the customer's 1-year and 25-year savings, monthly & yearly generation, and payback period — all derived from the inputs you've already given.</p>
+                    <p style={{ color: 'var(--color-white)', fontSize: '14px', marginTop: '16px', fontWeight: 'bold' }}>Hit Next to proceed.</p>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -816,68 +954,115 @@ const ProposalForm = () => {
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 7: Scope & Timeline</h2>
               
-              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Scope of Work</h3>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
-                  <div>Task Name</div><div style={{ textAlign: 'center' }}>Vykon (EPC)</div><div style={{ textAlign: 'center' }}>Customer</div><div></div>
-                </div>
-                {formData.scopeItems.map((item, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
-                    <input type="text" value={item.name} onChange={(e) => {
-                      const newItems = [...formData.scopeItems];
-                      newItems[idx].name = e.target.value;
-                      setFormData(prev => ({...prev, scopeItems: newItems}));
-                    }} className="form-input" />
-                    <label style={{ display: 'flex', justifyContent: 'center' }}>
-                      <input type="checkbox" checked={item.epc} onChange={(e) => {
-                        const newItems = [...formData.scopeItems];
-                        newItems[idx].epc = e.target.checked;
-                        setFormData(prev => ({...prev, scopeItems: newItems}));
-                      }} style={{ width: '16px', height: '16px' }} />
-                    </label>
-                    <label style={{ display: 'flex', justifyContent: 'center' }}>
-                      <input type="checkbox" checked={item.cust} onChange={(e) => {
-                        const newItems = [...formData.scopeItems];
-                        newItems[idx].cust = e.target.checked;
-                        setFormData(prev => ({...prev, scopeItems: newItems}));
-                      }} style={{ width: '16px', height: '16px' }} />
-                    </label>
-                    <button type="button" onClick={() => {
-                        setFormData(prev => ({...prev, scopeItems: formData.scopeItems.filter((_, i) => i !== idx)}));
-                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
-                  </div>
-                ))}
-                <button type="button" onClick={() => {
-                  setFormData(prev => ({...prev, scopeItems: [...formData.scopeItems, { id: Date.now(), name: '', epc: true, cust: false }]}));
-                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Scope Item</button>
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showScopePage" checked={formData.showScopePage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "Scope & Timeline" Page in PDF
+                </label>
               </div>
 
-              <h3 className="subheading" style={{ fontSize: '16px', marginTop: '32px', marginBottom: '16px' }}>Project Schedule</h3>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
-                  <div>Phase Name</div><div>Timeline (Days)</div><div></div>
-                </div>
-                {formData.projectSchedule.map((item, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
-                    <input type="text" value={item.name} onChange={(e) => {
-                      const newItems = [...formData.projectSchedule];
-                      newItems[idx].name = e.target.value;
-                      setFormData(prev => ({...prev, projectSchedule: newItems}));
-                    }} className="form-input" />
-                    <input type="text" value={item.days} onChange={(e) => {
-                      const newItems = [...formData.projectSchedule];
-                      newItems[idx].days = e.target.value;
-                      setFormData(prev => ({...prev, projectSchedule: newItems}));
-                    }} className="form-input" />
-                    <button type="button" onClick={() => {
-                        setFormData(prev => ({...prev, projectSchedule: formData.projectSchedule.filter((_, i) => i !== idx)}));
-                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+              {formData.showScopePage !== false && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showScopeTable" checked={formData.showScopeTable !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Scope of Work Table
+                    </label>
                   </div>
-                ))}
-                <button type="button" onClick={() => {
-                  setFormData(prev => ({...prev, projectSchedule: [...formData.projectSchedule, { id: Date.now(), name: '', days: '' }]}));
-                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Phase</button>
-              </div>
+                  
+                  {formData.showScopeTable !== false && (
+                    <div style={{ marginLeft: '24px' }}>
+                      <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Scope of Work</h3>
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                          <div>Task Name</div><div style={{ textAlign: 'center' }}>Vykon (EPC)</div><div style={{ textAlign: 'center' }}>Customer</div><div></div>
+                        </div>
+                        {formData.scopeItems.map((item, idx) => (
+                          <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
+                            <input type="text" value={item.name} onChange={(e) => {
+                              const newItems = [...formData.scopeItems];
+                              newItems[idx].name = e.target.value;
+                              setFormData(prev => ({...prev, scopeItems: newItems}));
+                            }} className="form-input" />
+                            <label style={{ display: 'flex', justifyContent: 'center' }}>
+                              <input type="checkbox" checked={item.epc} onChange={(e) => {
+                                const newItems = [...formData.scopeItems];
+                                newItems[idx].epc = e.target.checked;
+                                setFormData(prev => ({...prev, scopeItems: newItems}));
+                              }} style={{ width: '16px', height: '16px' }} />
+                            </label>
+                            <label style={{ display: 'flex', justifyContent: 'center' }}>
+                              <input type="checkbox" checked={item.cust} onChange={(e) => {
+                                const newItems = [...formData.scopeItems];
+                                newItems[idx].cust = e.target.checked;
+                                setFormData(prev => ({...prev, scopeItems: newItems}));
+                              }} style={{ width: '16px', height: '16px' }} />
+                            </label>
+                            <button type="button" onClick={() => {
+                                setFormData(prev => {
+                                  const newItems = prev.scopeItems.filter((_, i) => i !== idx);
+                                  return {
+                                    ...prev, 
+                                    scopeItems: newItems,
+                                    showScopeTable: newItems.length === 0 ? false : prev.showScopeTable
+                                  };
+                                });
+                            }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => {
+                          setFormData(prev => ({...prev, scopeItems: [...formData.scopeItems, { id: Date.now(), name: '', epc: true, cust: false }]}));
+                        }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Scope Item</button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px', marginTop: '32px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showTimelineChart" checked={formData.showTimelineChart !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Project Schedule
+                    </label>
+                  </div>
+                  
+                  {formData.showTimelineChart !== false && (
+                    <div style={{ marginLeft: '24px' }}>
+                      <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Project Schedule</h3>
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                          <div>Phase Name</div><div>Timeline (Days)</div><div></div>
+                        </div>
+                        {formData.projectSchedule.map((item, idx) => (
+                          <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 40px', gap: '8px', alignItems: 'center' }}>
+                            <input type="text" value={item.name} onChange={(e) => {
+                              const newItems = [...formData.projectSchedule];
+                              newItems[idx].name = e.target.value;
+                              setFormData(prev => ({...prev, projectSchedule: newItems}));
+                            }} className="form-input" />
+                            <input type="text" value={item.days} onChange={(e) => {
+                              const newItems = [...formData.projectSchedule];
+                              newItems[idx].days = e.target.value;
+                              setFormData(prev => ({...prev, projectSchedule: newItems}));
+                            }} className="form-input" />
+                            <button type="button" onClick={() => {
+                                setFormData(prev => {
+                                  const newItems = prev.projectSchedule.filter((_, i) => i !== idx);
+                                  return {
+                                    ...prev, 
+                                    projectSchedule: newItems,
+                                    showTimelineChart: newItems.length === 0 ? false : prev.showTimelineChart
+                                  };
+                                });
+                            }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => {
+                          setFormData(prev => ({...prev, projectSchedule: [...formData.projectSchedule, { id: Date.now(), name: '', days: '' }]}));
+                        }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Phase</button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
@@ -885,99 +1070,199 @@ const ProposalForm = () => {
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 8: BoM & Warranty</h2>
               
-              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Bill of Materials</h3>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
-                  <div style={{ textAlign: 'center' }}>Incl.</div><div>Component</div><div>Make</div><div>Quantity</div><div></div>
-                </div>
-                {formData.bomItems.map((item, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center', opacity: item.enabled === false ? 0.5 : 1 }}>
-                    <label style={{ display: 'flex', justifyContent: 'center' }}>
-                      <input type="checkbox" checked={item.enabled !== false} onChange={(e) => {
-                        const newItems = [...formData.bomItems];
-                        newItems[idx].enabled = e.target.checked;
-                        setFormData(prev => ({...prev, bomItems: newItems}));
-                      }} style={{ width: '16px', height: '16px' }} />
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showBomPage" checked={formData.showBomPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "BoM & Warranty" Page in PDF
+                </label>
+              </div>
+
+              {formData.showBomPage !== false && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showBomTable" checked={formData.showBomTable !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Bill of Materials Table
                     </label>
-                    <input type="text" value={item.component} onChange={(e) => {
-                      const newItems = [...formData.bomItems];
-                      newItems[idx].component = e.target.value;
-                      setFormData(prev => ({...prev, bomItems: newItems}));
-                    }} className="form-input" disabled={item.enabled === false} />
-                    <input type="text" value={item.make} onChange={(e) => {
-                      const newItems = [...formData.bomItems];
-                      newItems[idx].make = e.target.value;
-                      setFormData(prev => ({...prev, bomItems: newItems}));
-                    }} className="form-input" disabled={item.enabled === false} />
-                    <input type="text" value={item.qty} onChange={(e) => {
-                      const newItems = [...formData.bomItems];
-                      newItems[idx].qty = e.target.value;
-                      setFormData(prev => ({...prev, bomItems: newItems}));
-                    }} className="form-input" disabled={item.enabled === false} />
-                    <button type="button" onClick={() => {
-                        setFormData(prev => ({...prev, bomItems: formData.bomItems.filter((_, i) => i !== idx)}));
-                    }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
                   </div>
-                ))}
-                <button type="button" onClick={() => {
-                  setFormData(prev => ({...prev, bomItems: [...formData.bomItems, { id: Date.now(), component: '', make: '', qty: '', enabled: true }]}));
-                }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Material</button>
-              </div>
-              
-              <h3 className="subheading" style={{ fontSize: '16px', marginTop: '32px', marginBottom: '16px' }}>Warranty Terms</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>PV Modules (yrs)</span>
-                  <input type="number" name="warrantyPanels" value={formData.warrantyPanels} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>Inverter (yrs)</span>
-                  <input type="number" name="warrantyInverter" value={formData.warrantyInverter} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ width: '200px', fontSize: '14px' }}>Other Components (yrs)</span>
-                  <input type="number" name="warrantyOther" value={formData.warrantyOther} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
-                </div>
-              </div>
+
+                  {formData.showBomTable !== false && (
+                    <div style={{ marginLeft: '24px' }}>
+                      <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Bill of Materials</h3>
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', color: 'var(--color-muted-blue)', fontSize: '12px', paddingBottom: '8px', borderBottom: '1px solid var(--color-border-light)' }}>
+                          <div style={{ textAlign: 'center' }}>Incl.</div><div>Component</div><div>Make</div><div>Quantity</div><div></div>
+                        </div>
+                        {formData.bomItems.map((item, idx) => (
+                          <div key={idx} style={{ display: 'grid', gridTemplateColumns: '40px 2fr 1fr 1fr 40px', gap: '8px', alignItems: 'center', opacity: item.enabled === false ? 0.5 : 1 }}>
+                            <label style={{ display: 'flex', justifyContent: 'center' }}>
+                              <input type="checkbox" checked={item.enabled !== false} onChange={(e) => {
+                                const newItems = [...formData.bomItems];
+                                newItems[idx].enabled = e.target.checked;
+                                setFormData(prev => ({...prev, bomItems: newItems}));
+                              }} style={{ width: '16px', height: '16px' }} />
+                            </label>
+                            <input type="text" value={item.component} onChange={(e) => {
+                              const newItems = [...formData.bomItems];
+                              newItems[idx].component = e.target.value;
+                              setFormData(prev => ({...prev, bomItems: newItems}));
+                            }} className="form-input" disabled={item.enabled === false} />
+                            <input type="text" value={item.make} onChange={(e) => {
+                              const newItems = [...formData.bomItems];
+                              newItems[idx].make = e.target.value;
+                              setFormData(prev => ({...prev, bomItems: newItems}));
+                            }} className="form-input" disabled={item.enabled === false} />
+                            <input type="text" value={item.qty} onChange={(e) => {
+                              const newItems = [...formData.bomItems];
+                              newItems[idx].qty = e.target.value;
+                              setFormData(prev => ({...prev, bomItems: newItems}));
+                            }} className="form-input" disabled={item.enabled === false} />
+                            <button type="button" onClick={() => {
+                                setFormData(prev => {
+                                  const newItems = prev.bomItems.filter((_, i) => i !== idx);
+                                  return {
+                                    ...prev, 
+                                    bomItems: newItems,
+                                    showBomTable: newItems.length === 0 ? false : prev.showBomTable
+                                  };
+                                });
+                            }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => {
+                          setFormData(prev => ({...prev, bomItems: [...formData.bomItems, { id: Date.now(), component: '', make: '', qty: '', enabled: true }]}));
+                        }} className="btn-secondary" style={{ marginTop: '8px', padding: '8px', fontSize: '12px' }}>+ Add Material</button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px', marginTop: '32px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showWarrantyTerms" checked={formData.showWarrantyTerms !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Warranty Terms
+                    </label>
+                  </div>
+
+                  {formData.showWarrantyTerms !== false && (
+                    <div style={{ marginLeft: '24px' }}>
+                      <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '16px' }}>Warranty Terms</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                          <span style={{ width: '200px', fontSize: '14px' }}>PV Modules (yrs)</span>
+                          <input type="number" name="warrantyPanels" value={formData.warrantyPanels} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                          <span style={{ width: '200px', fontSize: '14px' }}>Inverter (yrs)</span>
+                          <input type="number" name="warrantyInverter" value={formData.warrantyInverter} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                          <span style={{ width: '200px', fontSize: '14px' }}>Other Components (yrs)</span>
+                          <input type="number" name="warrantyOther" value={formData.warrantyOther} onChange={handleChange} className="form-input" style={{ width: '100px' }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
           {step === 9 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 9: Terms & Conditions</h2>
-              <p style={{ color: 'var(--color-muted-blue)', fontSize: '14px', marginBottom: '16px' }}>* Clauses are pre-populated. To edit, modify state in code for now.</p>
-              <div className="form-group">
-                <label className="form-label">Exclusions</label>
-                <textarea name="exclusions" value={formData.exclusions} onChange={handleChange} className="form-input" style={{ height: '200px' }} />
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showTermsPage" checked={formData.showTermsPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "Terms & Conditions" Page in PDF
+                </label>
               </div>
+
+              {formData.showTermsPage !== false && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showTermsList" checked={formData.showTermsList !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Standard Terms List
+                    </label>
+                  </div>
+                  
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showExclusions" checked={formData.showExclusions !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Exclusions
+                    </label>
+                  </div>
+                  
+                  {formData.showExclusions !== false && (
+                    <div className="form-group" style={{ marginLeft: '24px' }}>
+                      <label className="form-label">Exclusions</label>
+                      <textarea name="exclusions" value={formData.exclusions} onChange={handleChange} className="form-input" style={{ height: '200px' }} />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
           {step === 10 && (
             <div>
               <h2 className="ui-label" style={{ color: 'var(--color-teal)', marginBottom: '24px' }}>Step 10: Final Page</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div className="form-group">
-                  <label className="form-label">Phone</label>
-                  <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Primary Office Address</label>
-                  <input type="text" name="contactAddress" value={formData.contactAddress} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Secondary Office Address</label>
-                  <input type="text" name="contactAddress2" value={formData.contactAddress2 || ''} onChange={handleChange} className="form-input" />
-                </div>
-                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                  <label className="form-label">Website</label>
-                  <input type="text" name="contactWebsite" value={formData.contactWebsite} onChange={handleChange} className="form-input" />
-                </div>
+              
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showAboutPage" checked={formData.showAboutPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "About Vykon" Page in PDF
+                </label>
               </div>
+
+              <div className="form-group" style={{ marginBottom: '24px', backgroundColor: 'rgba(0,194,168,0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-teal)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)', fontWeight: 'bold' }}>
+                  <input type="checkbox" name="showContactPage" checked={formData.showContactPage !== false} onChange={handleChange} style={{ width: '18px', height: '18px', accentColor: 'var(--color-teal)' }} />
+                  Include "Environmental Impact & Contact" Page in PDF
+                </label>
+              </div>
+
+              {formData.showContactPage !== false && (
+                <>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showEnvImpact" checked={formData.showEnvImpact !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Environmental Impact Block
+                    </label>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '16px', marginLeft: '24px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-white)' }}>
+                      <input type="checkbox" name="showContactInfo" checked={formData.showContactInfo !== false} onChange={handleChange} style={{ width: '18px', height: '18px' }} />
+                      Show Contact Information
+                    </label>
+                  </div>
+                  
+                  {formData.showContactInfo !== false && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginLeft: '24px' }}>
+                      <div className="form-group">
+                        <label className="form-label">Phone</label>
+                        <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className="form-input" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="form-input" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Primary Office Address</label>
+                        <input type="text" name="contactAddress" value={formData.contactAddress} onChange={handleChange} className="form-input" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Secondary Office Address</label>
+                        <input type="text" name="contactAddress2" value={formData.contactAddress2 || ''} onChange={handleChange} className="form-input" />
+                      </div>
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">Website</label>
+                        <input type="text" name="contactWebsite" value={formData.contactWebsite} onChange={handleChange} className="form-input" />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 

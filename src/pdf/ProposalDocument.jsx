@@ -144,11 +144,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
         case 3: targetPage = 2; break; // Cost & generation impacts Page 2 heavily
         case 4: targetPage = 3; break; // Pricing & Payment
         case 5: targetPage = 4; break; // Outcomes
-        case 6: targetPage = formData.isLoan ? 5 : 4; break; // Financing
-        case 7: targetPage = formData.isLoan ? 6 : 5; break; // Scope
-        case 8: targetPage = formData.isLoan ? 7 : 6; break; // BoM
-        case 9: targetPage = formData.isLoan ? 8 : 7; break; // Terms
-        case 10: targetPage = formData.isLoan ? 10 : 9; break; // Contact (skip About page)
+        case 6: targetPage = 5; break; // Financing
+        case 7: targetPage = 6; break; // Scope
+        case 8: targetPage = 7; break; // BoM
+        case 9: targetPage = 8; break; // Terms
+        case 10: targetPage = 10; break; // Contact (skip About page)
         default: targetPage = 1;
       }
 
@@ -260,8 +260,9 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       </Page>
 
       {/* PAGE 2: BENEFITS IN NUMBERS & CUSTOMER DETAILS (Step 2) */}
-      <Page backgroundImage={formData.pageBackgrounds?.['page-2']} id="page-2" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="Benefits in" highlight="Numbers" isLightBg={isLightBg} />
+      {formData.showBenefitsPage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-2']} id="page-2" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="Benefits in" highlight="Numbers" isLightBg={isLightBg} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
           <div className="vykon-card" style={{ borderColor: 'var(--color-bg-card)' }}>
             <ZapIcon size={20} color="var(--color-teal)" style={{ marginBottom: '8px' }} />
@@ -347,14 +348,16 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               </div>
             </div>
           </div>
-        </div>
-      </Page>
+        </Page>
+      )}
 
       {/* PAGE 3: SYSTEM PRICING (Step 4) */}
-      <Page backgroundImage={formData.pageBackgrounds?.['page-3']} id="page-3" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="System" highlight="Pricing" isLightBg={isLightBg} />
+      {formData.showSystemPricingPage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-3']} id="page-3" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="System" highlight="Pricing" isLightBg={isLightBg} />
 
-        <table className="vykon-table">
+          {formData.showPricingTable !== false && (
+            <table className="vykon-table">
           <thead>
             <tr>
               <th style={{ width: '30%' }}>Component</th>
@@ -386,6 +389,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             </tr>
           </tbody>
         </table>
+        )}
 
         {formData.amcEnabled && (
           <>
@@ -437,27 +441,37 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </>
         )}
 
-        <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Payment Terms</h3>
-        <div style={{ backgroundColor: 'var(--color-bg-subtle)', padding: '24px', borderRadius: '8px', border: '1px solid var(--color-bg-hover)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-            {(formData.paymentTerms || []).filter(t => t.enabled !== false).map((term, idx, arr) => (
-              <React.Fragment key={idx}>
+        {formData.showPaymentTermsSection !== false && (() => {
+          const activeTerms = (formData.paymentTerms || []).filter(t => t.enabled !== false);
+          if (activeTerms.length === 0) return null;
+          return (
+            <>
+              <h3 className="subheading" style={{ fontSize: '16px', marginBottom: '12px' }}>Payment Terms</h3>
+              <div style={{ backgroundColor: 'var(--color-bg-subtle)', padding: '24px', borderRadius: '8px', border: '1px solid var(--color-bg-hover)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                  {activeTerms.map((term, idx, arr) => (
+                    <React.Fragment key={idx}>
                 <div style={{ textAlign: 'center', flex: 1, minWidth: '120px' }}>
                   <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{term.percent}%</div>
                   <div style={{ fontSize: '12px', color: 'var(--color-white)', marginTop: '4px' }}>{term.text}</div>
                 </div>
                 {idx < arr.length - 1 && (
-                  <ArrowRight size={24} color="var(--color-muted-blue)" />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </Page>
+                      <ArrowRight size={24} color="var(--color-muted-blue)" />
+                    )}
+                  </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </>
+          );
+        })()}
+        </Page>
+      )}
 
       {/* PAGE 4: PROJECT OUTCOMES (Step 5) */}
-      <Page backgroundImage={formData.pageBackgrounds?.['page-4']} id="page-4" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="Project" highlight="Outcomes" isLightBg={isLightBg} />
+      {formData.showProjectOutcomesPage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-4']} id="page-4" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="Project" highlight="Outcomes" isLightBg={isLightBg} />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '16px' }}>
@@ -477,8 +491,10 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
         </div>
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>1st Year Monthly Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
-        <div style={{ height: '140px', marginBottom: '24px' }}>
+        {formData.showOutcomesMonthlyGen !== false && (
+          <>
+            <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>1st Year Monthly Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
+            <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyGenData}>
               <XAxis dataKey="name" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} />
@@ -488,9 +504,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             </BarChart>
           </ResponsiveContainer>
         </div>
+          </>
+        )}
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Annual Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
-        <div style={{ height: '140px', marginBottom: '24px' }}>
+        {formData.showOutcomesAnnualGen !== false && (
+          <>
+            <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Annual Generation (kWh) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
+            <div style={{ height: '140px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={gen25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
@@ -500,9 +520,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             </BarChart>
           </ResponsiveContainer>
         </div>
+          </>
+        )}
 
-        <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Cumulative Savings (Lakhs INR) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
-        <div style={{ height: '140px' }}>
+        {formData.showOutcomesSavings !== false && (
+          <>
+            <h3 className="subheading" style={{ fontSize: '14px', marginBottom: '12px' }}>25 Year Cumulative Savings (Lakhs INR) {formData.proposalType === 'initial' && <span style={{ color: 'var(--color-muted-blue)', fontWeight: 'normal', fontSize: '12px' }}>(Approximate)</span>}</h3>
+            <div style={{ height: '140px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={savings25YrData} margin={{ left: -10 }}>
               <XAxis dataKey="year" stroke="var(--color-muted-blue)" fontSize={10} tickLine={false} axisLine={{ stroke: 'var(--color-border-light)' }} interval={2} />
@@ -512,7 +536,10 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </Page>
+          </>
+        )}
+        </Page>
+      )}
 
       {/* PAGE 5: LOAN OPTION (Step 6 - Conditional) */}
       {formData.isLoan && (
@@ -595,9 +622,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
       )}
 
       {/* PAGE 6: SCOPE OF WORK & TIMELINE (Step 7) */}
-      <Page backgroundImage={formData.pageBackgrounds?.[formData.isLoan ? 'page-6' : 'page-5']} id={formData.isLoan ? 'page-6' : 'page-5'} isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="Scope of" highlight="Work" isLightBg={isLightBg} />
-        <table className="vykon-table">
+      {formData.showScopePage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-6']} id="page-6" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="Scope of" highlight="Work" isLightBg={isLightBg} />
+          {formData.showScopeTable !== false && (
+            <table className="vykon-table">
           <thead>
             <tr>
               <th style={{ width: '60%' }}>Name</th>
@@ -615,11 +644,14 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             ))}
           </tbody>
         </table>
+          )}
 
-        <div style={{ height: '32px' }}></div>
-        <SectionHeader title="Project" highlight="Schedule" isLightBg={isLightBg} />
-        <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid var(--color-border-light)' }}>
-          <div className="vykon-timeline">
+          <div style={{ height: '32px' }}></div>
+          {formData.showTimelineChart !== false && (
+            <>
+              <SectionHeader title="Project" highlight="Schedule" isLightBg={isLightBg} />
+              <div style={{ backgroundColor: 'var(--color-navy)', padding: '40px 24px', borderRadius: '8px', border: '1px solid var(--color-border-light)' }}>
+                <div className="vykon-timeline">
             {formData.projectSchedule.map((phase, idx) => {
               const colors = ['var(--color-teal)', 'var(--color-orange)'];
               const color = colors[idx % 2];
@@ -637,12 +669,17 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             })}
           </div>
         </div>
-      </Page>
+            </>
+          )}
+        </Page>
+      )}
 
       {/* PAGE 7: BoM & Warranty (Step 8) */}
-      <Page backgroundImage={formData.pageBackgrounds?.[formData.isLoan ? 'page-7' : 'page-6']} id={formData.isLoan ? 'page-7' : 'page-6'} isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="Bill of" highlight="Materials" isLightBg={isLightBg} />
-        <table className="vykon-table">
+      {formData.showBomPage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-7']} id="page-7" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="Bill of" highlight="Materials" isLightBg={isLightBg} />
+          {formData.showBomTable !== false && (
+            <table className="vykon-table">
           <thead>
             <tr>
               <th style={{ width: '40%' }}>Component</th>
@@ -660,10 +697,13 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             ))}
           </tbody>
         </table>
+          )}
 
-        <div style={{ height: '32px' }}></div>
-        <SectionHeader title="Warranty" highlight="Terms" isLightBg={isLightBg} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ height: '32px' }}></div>
+          {formData.showWarrantyTerms !== false && (
+            <>
+              <SectionHeader title="Warranty" highlight="Terms" isLightBg={isLightBg} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="vykon-card" style={{ textAlign: 'center', padding: '32px 16px' }}>
             <Sun size={28} color="var(--color-orange)" style={{ margin: '0 auto 12px' }} />
             <div style={{ fontSize: '32px', color: 'var(--color-orange)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{formData.warrantyPanels} Years</div>
@@ -680,27 +720,34 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)' }}>Other Components</div>
           </div>
         </div>
-        <p style={{ fontSize: '10px', color: 'var(--color-muted-blue)', lineHeight: 1.5 }}>
-          *{brandConfig.warrantyFootnote}
-        </p>
-      </Page>
+            <p style={{ fontSize: '10px', color: 'var(--color-muted-blue)', lineHeight: 1.5 }}>
+              *{brandConfig.warrantyFootnote}
+            </p>
+            </>
+          )}
+        </Page>
+      )}
 
       {/* PAGE 8: Terms & Conditions (Step 9) */}
-      <Page backgroundImage={formData.pageBackgrounds?.[formData.isLoan ? 'page-8' : 'page-7']} id={formData.isLoan ? 'page-8' : 'page-7'} isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
-        <SectionHeader title="Terms &" highlight="Conditions" isLightBg={isLightBg} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {formData.termsConditions.map((term, idx) => (
+      {formData.showTermsPage !== false && (
+        <Page backgroundImage={formData.pageBackgrounds?.['page-8']} id="page-8" isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
+          <SectionHeader title="Terms &" highlight="Conditions" isLightBg={isLightBg} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {formData.showTermsList !== false && formData.termsConditions.map((term, idx) => (
             <div key={idx} style={{ display: 'flex', gap: '24px' }}>
               <div style={{ width: '120px', flexShrink: 0, color: 'var(--color-teal)', fontSize: '12px', fontWeight: 600 }}>{term.title}</div>
               <div style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.5 }}>{term.text}</div>
             </div>
-          ))}
-          <div style={{ display: 'flex', gap: '24px', marginTop: '16px' }}>
-            <div style={{ width: '120px', flexShrink: 0, color: 'var(--color-orange)', fontSize: '12px', fontWeight: 600 }}>Exclusions</div>
-            <div style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{formData.exclusions}</div>
+            ))}
+            {formData.showExclusions !== false && (
+              <div style={{ display: 'flex', gap: '24px', marginTop: '16px' }}>
+                <div style={{ width: '120px', flexShrink: 0, color: 'var(--color-orange)', fontSize: '12px', fontWeight: 600 }}>Exclusions</div>
+                <div style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{formData.exclusions}</div>
+              </div>
+            )}
           </div>
-        </div>
-      </Page>
+        </Page>
+      )}
 
       {/* PAGE 9: About Vykon (Stats) (Auto-injected) */}
       <Page backgroundImage={formData.pageBackgrounds?.[formData.isLoan ? 'page-9' : 'page-8']} id={formData.isLoan ? 'page-9' : 'page-8'} isEditor={isEditor} onBackgroundChange={onBackgroundChange}>
@@ -722,12 +769,16 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <div style={{ fontSize: '40px', color: 'var(--color-earth)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{brandConfig.stats.sites}</div>
             <div style={{ fontSize: '12px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Commissioned Sites</div>
           </div>
-        </div>
-      </Page>
+          </div>
+        </Page>
+      )}
 
       {/* PAGE 10: Environmental & Contact (Step 10) */}
-      <Page backgroundImage={formData.backgroundImage} id={formData.isLoan ? "page-10" : "page-9"}>
-        <SectionHeader title="Environmental" highlight="Impact" isLightBg={isLightBg} />
+      {formData.showContactPage !== false && (
+        <Page backgroundImage={formData.backgroundImage} id="page-10">
+          {formData.showEnvImpact !== false && (
+            <>
+              <SectionHeader title="Environmental" highlight="Impact" isLightBg={isLightBg} />
         <p style={{ color: 'var(--color-white)', fontSize: '12px', lineHeight: 1.6, marginBottom: '24px' }}>
           Our goal is to provide clean, renewable, green energy to discern customers such as yourself. By choosing solar energy, you're not just investing in clean, renewable power — you're joining us in creating a more sustainable future for generations to come. Let's work together to make a positive impact on our planet.
         </p>
@@ -750,10 +801,12 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
             <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.distanceDriven.toLocaleString(undefined, { maximumFractionDigits: 0 })} Lakh Kms</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Distance Driven</div>
-          </div>
-        </div>
+              </div>
+            </>
+          )}
 
-        <div className="navy-surface" style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
+          {formData.showContactInfo !== false && (
+            <div className="navy-surface" style={{ display: 'flex', gap: '24px', backgroundColor: 'var(--color-navy)', borderRadius: '8px', overflow: 'hidden' }}>
           <div style={{ width: '40%', backgroundColor: 'var(--color-orange)', padding: '24px', color: 'var(--color-white)' }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>Contact Information</h3>
             <p style={{ fontSize: '10px', marginBottom: '24px' }}>We'd love to hear from you!</p>
@@ -771,9 +824,11 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
             <p style={{ fontSize: '9px', color: 'var(--color-muted-blue)', lineHeight: 1.5 }}>
               DISCLAIMER: {brandConfig.disclaimer}
             </p>
-          </div>
-        </div>
-      </Page>
+              </div>
+            </div>
+          )}
+        </Page>
+      )}
     </div>
   );
 });

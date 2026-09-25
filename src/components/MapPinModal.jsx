@@ -14,6 +14,7 @@ const MapUpdater = ({ center }) => {
 
   const [address, setAddress] = useState(initialAddress || '');
   const [isDragging, setIsDragging] = useState(false);
+  const [mapInstance, setMapInstance] = useState(null);
   const mapRef = useRef(null);
 
   // Debounce for reverse geocoding
@@ -21,21 +22,45 @@ const MapUpdater = ({ center }) => {
 
   // Update map view when modal opens if initial coords changed
   useEffect(() => {
-    if (isOpen && mapRef.current) {
-      mapRef.current.setView([initialLat || 28.6139, initialLng || 77.2090], mapRef.current.getZoom(), { animate: false });
-      setAddress(initialAddress || '');
+    if (isOpen && mapInstance) {
+      if (initialLat && initialLng) {
+        mapInstance.setView([initialLat, initialLng], mapInstance.getZoom(), { animate: false });
+        setAddress(initialAddress || '');
+      } else if (initialAddress) {
+        setAddress("Locating...");
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(initialAddress)}&limit=1`, {
+          headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'VykonQuotationApp/1.0' }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.length > 0) {
+              const lat = parseFloat(data[0].lat);
+              const lon = parseFloat(data[0].lon);
+              mapInstance.setView([lat, lon], mapInstance.getZoom(), { animate: false });
+              setAddress(data[0].display_name);
+            } else {
+              mapInstance.setView([28.6139, 77.2090], mapInstance.getZoom(), { animate: false });
+              setAddress(initialAddress || '');
+            }
+          })
+          .catch(err => {
+            console.error("Forward geocoding error:", err);
+            mapInstance.setView([28.6139, 77.2090], mapInstance.getZoom(), { animate: false });
+            setAddress(initialAddress || '');
+          });
+      } else {
+        mapInstance.setView([28.6139, 77.2090], mapInstance.getZoom(), { animate: false });
+        setAddress('');
+      }
     }
-  }, [isOpen, initialLat, initialLng, initialAddress]);
+  }, [isOpen, initialLat, initialLng, initialAddress, mapInstance]);
 
   // Custom component to handle map events
   const MapEvents = () => {
     const map = useMap();
     useEffect(() => {
+      setMapInstance(map);
       mapRef.current = map;
-      // Also set initial view when map first initializes if it's open
-      if (isOpen) {
-        map.setView([initialLat || 28.6139, initialLng || 77.2090], map.getZoom(), { animate: false });
-      }
     }, [map]);
 
     useMapEvents({

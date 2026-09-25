@@ -12,6 +12,7 @@ const MapUpdater = ({ center }) => {
   return null;
 };
 
+const MapPinModal = ({ isOpen, onClose, onSave, initialLat, initialLng, initialAddress }) => {
   const [address, setAddress] = useState(initialAddress || '');
   const [isDragging, setIsDragging] = useState(false);
   const [mapInstance, setMapInstance] = useState(null);

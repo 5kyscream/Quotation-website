@@ -348,6 +348,7 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
               </div>
             </div>
           </div>
+        </div>
         </Page>
       )}
 
@@ -771,7 +772,6 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           </div>
           </div>
         </Page>
-      )}
 
       {/* PAGE 10: Environmental & Contact (Step 10) */}
       {formData.showContactPage !== false && (
@@ -801,7 +801,8 @@ const ProposalDocument = forwardRef(({ formData, activeStep, layout = 'column', 
           <div className="vykon-card" style={{ backgroundColor: 'rgba(0,194,168,0.1)', borderColor: 'var(--color-teal)', textAlign: 'center', padding: '24px 16px' }}>
             <div style={{ fontSize: '28px', color: 'var(--color-teal)', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{fin.distanceDriven.toLocaleString(undefined, { maximumFractionDigits: 0 })} Lakh Kms</div>
             <div style={{ fontSize: '10px', color: 'var(--color-muted-blue)', textTransform: 'uppercase' }}>Distance Driven</div>
-              </div>
+          </div>
+        </div>
             </>
           )}
 
